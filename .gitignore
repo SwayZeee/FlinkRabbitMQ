@@ -1,0 +1,12 @@
+# IntelliJ specific
+/.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven specific
+/target/
+/log/
+
+# Project specific
+/src/main/java/com/baqend/results/
