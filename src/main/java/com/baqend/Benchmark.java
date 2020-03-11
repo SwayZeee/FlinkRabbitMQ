@@ -14,7 +14,7 @@ public class Benchmark {
         System.out.println("+++ Benchmark started +++");
 
         Gson gson = new Gson();
-        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\FlinkRabbitMQ\\src\\main\\java\\com\\baqend\\config.json"), ConfigObject.class);
+        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config.json"), ConfigObject.class);
         System.out.println("Configuration file loaded");
 
         Client client;
@@ -41,8 +41,8 @@ public class Benchmark {
 //        }
 
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
-        //loadGenerator.setup();
-        //loadGenerator.warmUp();
+        loadGenerator.setup();
+        loadGenerator.warmUp();
         loadGenerator.start();
         loadGenerator.stop();
     }
