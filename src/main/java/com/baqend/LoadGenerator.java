@@ -31,6 +31,7 @@ public class LoadGenerator {
     }
 
     public void start() throws InterruptedException, IOException, TimeoutException {
+        System.out.println("Benchmark started");
         double x = 1;
         int rounds = 9;
         while (x <= rounds) {
