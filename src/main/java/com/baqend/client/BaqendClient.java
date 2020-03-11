@@ -62,11 +62,9 @@ public class BaqendClient implements Client {
     }
 
     public void setup() {
-
     }
 
     public void warmUp() {
-
     }
 
     public void updateData(UUID uuid) throws IOException {
