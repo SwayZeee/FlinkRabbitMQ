@@ -33,7 +33,7 @@ public class LoadGenerator {
     public void start() throws InterruptedException, IOException, TimeoutException {
         System.out.println("Benchmark started");
         double x = 1;
-        int rounds = 9;
+        int rounds = 300;
         while (x <= rounds) {
             System.out.print("\rBenchmark in progess: " + (int) (x / rounds * 100) + "%");
             step();
@@ -50,6 +50,8 @@ public class LoadGenerator {
 
         System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
         System.out.println("Median: " + LatencyMeasurement.getInstance().calculateMedian() + "ms");
+        System.out.println("Maximum: " + LatencyMeasurement.getInstance().getMaximumLatency() + "ms");
+        System.out.println("Minimum: " + LatencyMeasurement.getInstance().getMinimumLatency() + "ms");
 
         jsonExporter.exportToJsonFile(latencies);
     }

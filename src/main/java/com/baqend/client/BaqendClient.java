@@ -1,6 +1,7 @@
 package com.baqend.client;
 
 import com.baqend.ConfigObject;
+import com.baqend.LatencyMeasurement;
 import com.baqend.utils.WebSocketClient;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -24,7 +25,6 @@ public class BaqendClient implements Client {
 
         webSocketClient = new WebSocketClient(new URI(configObject.baqendWebsocketUri));
         System.out.println("BaqendClient WebsocketURI: " + configObject.baqendWebsocketUri);
-
         System.out.println("BaqendClient HttpBaseURI: " + configObject.baqendHttpBaseUri);
 
         data = new ArrayList<String>();
@@ -59,6 +59,9 @@ public class BaqendClient implements Client {
                 "  ]\n}";
         System.out.println("Performing Query: " + queryString);
         webSocketClient.sendMessage(queryString);
+        UUID uuid = UUID.randomUUID();
+        LatencyMeasurement.getInstance().tick(uuid);
+        LatencyMeasurement.getInstance().setInitialTick(uuid);
     }
 
     public void setup() {

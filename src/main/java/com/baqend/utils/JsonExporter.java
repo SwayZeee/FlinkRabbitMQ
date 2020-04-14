@@ -17,7 +17,7 @@ public class JsonExporter {
     }
 
     public void exportToJsonFile(Map<UUID, Long> data) throws IOException {
-        Writer writer = new FileWriter("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\benchmark\\src\\main\\java\\com\\baqend\\results\\baqendResult.json");
+        Writer writer = new FileWriter("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\baqendResult.json");
         gson.toJson(data, writer);
         writer.flush();
         writer.close();

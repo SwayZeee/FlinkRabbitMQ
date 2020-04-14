@@ -85,4 +85,25 @@ public class LatencyMeasurement {
         medianIndex = (latencies.size()) / 2;
         return (indexedSortedLatencies.get(medianIndex - 1) + indexedSortedLatencies.get(medianIndex)) / 2;
     }
+
+    public Long getMaximumLatency() {
+        Map<UUID, Long> latencies = new HashMap();
+        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        AtomicLong maximum = new AtomicLong();
+        latencies.forEach((k, v) -> {if(v > maximum.get()){
+            maximum.set(v);
+        }});
+        return maximum.get();
+    }
+
+    public Long getMinimumLatency() {
+        Map<UUID, Long> latencies = new HashMap();
+        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        AtomicLong minimum = new AtomicLong();
+        minimum.set(1000000);
+        latencies.forEach((k, v) -> {if(v < minimum.get()){
+            minimum.set(v);
+        }});
+        return minimum.get();
+    }
 }

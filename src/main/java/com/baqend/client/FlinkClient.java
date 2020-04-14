@@ -21,11 +21,11 @@ public class FlinkClient implements Client {
     }
 
     public void setup() throws Exception {
-        for (int i = 0; i < 100; i++) {
-            MessageSender.getInstance().sendMessage("Hello World!");
-        }
-        MessageSender.getInstance().closeChannel();
-        MessageSender.getInstance().closeConnection();
+//        for (int i = 0; i < 100; i++) {
+//            MessageSender.getInstance().sendMessage("Hello World!");
+//        }
+//        MessageSender.getInstance().closeChannel();
+//        MessageSender.getInstance().closeConnection();
     }
 
     public void warmUp() {

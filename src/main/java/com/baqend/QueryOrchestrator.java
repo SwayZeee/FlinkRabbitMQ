@@ -16,9 +16,6 @@ public class QueryOrchestrator {
     }
 
     public void registerQuery() {
-        UUID uuid = UUID.randomUUID();
-        LatencyMeasurement.getInstance().tick(uuid);
-        LatencyMeasurement.getInstance().setInitialTick(uuid);
         client.doQuery(query.getQuery());
     }
 

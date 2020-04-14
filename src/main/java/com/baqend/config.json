@@ -1,5 +1,5 @@
 {
   "clientToTest": 1,
-  "baqendWebsocketUri": "wss://nice-beast-21.events.baqend.com/v1/events",
-  "baqendHttpBaseUri": "https://nice-beast-21.app.baqend.com/v1"
+  "baqendWebsocketUri": "wss://benchmark.events.baqend.com/v1/events",
+  "baqendHttpBaseUri": "https://benchmark.app.baqend.com/v1"
 }
