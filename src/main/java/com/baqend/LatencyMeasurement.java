@@ -87,8 +87,7 @@ public class LatencyMeasurement {
     }
 
     public Long getMaximumLatency() {
-        Map<UUID, Long> latencies = new HashMap();
-        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        Map<UUID, Long> latencies = calculateAllLatencies();
         AtomicLong maximum = new AtomicLong();
         latencies.forEach((k, v) -> {if(v > maximum.get()){
             maximum.set(v);
@@ -97,8 +96,7 @@ public class LatencyMeasurement {
     }
 
     public Long getMinimumLatency() {
-        Map<UUID, Long> latencies = new HashMap();
-        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        Map<UUID, Long> latencies = calculateAllLatencies();
         AtomicLong minimum = new AtomicLong();
         minimum.set(1000000);
         latencies.forEach((k, v) -> {if(v < minimum.get()){

@@ -18,6 +18,11 @@ public class FlinkClient implements Client {
     public void doQuery(String query) {
         FlinkThread flinkThread = new FlinkThread(query);
         flinkThread.start();
+        // time delay for starting flink
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+        }
     }
 
     public void setup() throws Exception {

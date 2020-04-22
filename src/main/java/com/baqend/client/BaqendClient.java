@@ -18,7 +18,6 @@ public class BaqendClient implements Client {
 
     private ConfigObject configObject;
     private WebSocketClient webSocketClient;
-    private ArrayList<String> data;
 
     public BaqendClient(ConfigObject configObject) throws URISyntaxException {
         this.configObject = configObject;
@@ -26,8 +25,6 @@ public class BaqendClient implements Client {
         webSocketClient = new WebSocketClient(new URI(configObject.baqendWebsocketUri));
         System.out.println("BaqendClient WebsocketURI: " + configObject.baqendWebsocketUri);
         System.out.println("BaqendClient HttpBaseURI: " + configObject.baqendHttpBaseUri);
-
-        data = new ArrayList<String>();
     }
 
     public void doQuery(String query) {
@@ -58,10 +55,10 @@ public class BaqendClient implements Client {
                 "    \"all\"\n" +
                 "  ]\n}";
         System.out.println("Performing Query: " + queryString);
-        webSocketClient.sendMessage(queryString);
         UUID uuid = UUID.randomUUID();
         LatencyMeasurement.getInstance().tick(uuid);
         LatencyMeasurement.getInstance().setInitialTick(uuid);
+        webSocketClient.sendMessage(queryString);
     }
 
     public void setup() {
@@ -84,7 +81,6 @@ public class BaqendClient implements Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void deleteData() {

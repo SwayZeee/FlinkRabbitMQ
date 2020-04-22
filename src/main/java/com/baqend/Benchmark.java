@@ -34,14 +34,6 @@ public class Benchmark {
         QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
         queryOrchestrator.registerQuery();
 
-        // time delay for starting flink
-        if (configObject.clientToTest == 2) {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-            }
-        }
-
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
         loadGenerator.setup();
         loadGenerator.warmUp();

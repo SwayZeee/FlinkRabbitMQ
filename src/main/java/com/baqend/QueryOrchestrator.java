@@ -3,8 +3,6 @@ package com.baqend;
 import com.baqend.client.Client;
 import com.baqend.query.Query;
 
-import java.util.UUID;
-
 public class QueryOrchestrator {
 
     private Query query;

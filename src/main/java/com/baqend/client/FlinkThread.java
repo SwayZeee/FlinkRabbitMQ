@@ -85,13 +85,13 @@ public class FlinkThread extends Thread {
         }
     }
 
-    public static class Splitter implements FlatMapFunction<String, String> {
-        @Override
-        public void flatMap(String s, Collector<String> collector) throws Exception {
+//    public static class Splitter implements FlatMapFunction<String, String> {
+//        @Override
+//        public void flatMap(String s, Collector<String> collector) throws Exception {
 //            for (String word : s.split("")) {
 //                collector.collect(new String(word));
 //            }
-            collector.collect(new String(s));
-        }
-    }
+//            collector.collect(new String(s));
+//        }
+//    }
 }
