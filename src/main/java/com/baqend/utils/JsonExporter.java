@@ -17,10 +17,11 @@ public class JsonExporter {
     }
 
     public void exportToJsonFile(Map<UUID, Long> data) throws IOException {
-        Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\results\\" + System.currentTimeMillis() + ".json");
+        long timeStamp = System.currentTimeMillis();
+        Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\results\\" + timeStamp + ".json");
         gson.toJson(data, writer);
         writer.flush();
         writer.close();
-        System.out.println("Results exported");
+        System.out.println("Results exported: " + timeStamp + ".json");
     }
 }
