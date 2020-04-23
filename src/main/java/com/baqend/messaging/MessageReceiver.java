@@ -7,15 +7,21 @@ import java.util.concurrent.TimeoutException;
 
 public class MessageReceiver {
 
-    private final static String QUEUE_NAME = "hello";
+    private Connection connection;
+    private Channel channel;
+    private static final String EXCHANGE_NAME = "benchmark";
 
     public MessageReceiver() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
+        connection = factory.newConnection();
+        channel = connection.createChannel();
 
-        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+        String queueName = channel.queueDeclare().getQueue();
+        channel.queueBind(queueName, EXCHANGE_NAME, "");
+
+        System.out.println(" Exchange: " + EXCHANGE_NAME + " Queue: " + queueName);
         System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
         Consumer consumer = new Consumer() {
@@ -50,6 +56,6 @@ public class MessageReceiver {
                 System.out.println(message);
             }
         };
-        channel.basicConsume(QUEUE_NAME, true, consumer);
+        channel.basicConsume(queueName, true, consumer);
     }
 }

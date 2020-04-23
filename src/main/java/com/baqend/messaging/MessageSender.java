@@ -9,16 +9,17 @@ import java.util.concurrent.TimeoutException;
 public class MessageSender {
 
     private static MessageSender single_instance = null;
-    private String QUEUE_NAME = "hello";
     private Connection connection;
     private Channel channel;
+    private String EXCHANGE_NAME = "benchmark";
 
     private MessageSender() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
         channel = connection.createChannel();
-        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
     }
 
     public static MessageSender getInstance() throws IOException, TimeoutException {
@@ -29,7 +30,7 @@ public class MessageSender {
     }
 
     public void sendMessage(String message) throws IOException {
-        channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+        channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes(StandardCharsets.UTF_8));
         // System.out.println(" [x] Sent '" + message + "'");
     }
 
