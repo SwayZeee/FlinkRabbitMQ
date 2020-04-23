@@ -1,9 +1,11 @@
 package com.baqend;
 
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Map.Entry.comparingByValue;
@@ -11,19 +13,19 @@ import static java.util.stream.Collectors.toMap;
 
 public class LatencyMeasurement {
 
-    private static LatencyMeasurement single_instance = null;
-    private Map<UUID, Long> ticks = new HashMap();
-    private Map<UUID, Long> tocks = new HashMap();
+    private static LatencyMeasurement singleton = null;
+    private Map<UUID, Long> ticks = new ConcurrentHashMap<>();
+    private Map<UUID, Long> tocks = new ConcurrentHashMap<>();
     private UUID initialTick;
 
     private LatencyMeasurement() {
     }
 
-    public static LatencyMeasurement getInstance() {
-        if (single_instance == null) {
-            single_instance = new LatencyMeasurement();
+    public static synchronized LatencyMeasurement getInstance() {
+        if (singleton == null) {
+            singleton = new LatencyMeasurement();
         }
-        return single_instance;
+        return singleton;
     }
 
     public void setInitialTick(UUID uuid) {
@@ -36,6 +38,7 @@ public class LatencyMeasurement {
 
     public void tock() {
         tocks.put(initialTick, System.currentTimeMillis());
+
     }
 
     public void tock(UUID id) {
@@ -89,9 +92,11 @@ public class LatencyMeasurement {
     public Long getMaximumLatency() {
         Map<UUID, Long> latencies = calculateAllLatencies();
         AtomicLong maximum = new AtomicLong();
-        latencies.forEach((k, v) -> {if(v > maximum.get()){
-            maximum.set(v);
-        }});
+        latencies.forEach((k, v) -> {
+            if (v > maximum.get()) {
+                maximum.set(v);
+            }
+        });
         return maximum.get();
     }
 
@@ -99,9 +104,16 @@ public class LatencyMeasurement {
         Map<UUID, Long> latencies = calculateAllLatencies();
         AtomicLong minimum = new AtomicLong();
         minimum.set(1000000);
-        latencies.forEach((k, v) -> {if(v < minimum.get()){
-            minimum.set(v);
-        }});
+        latencies.forEach((k, v) -> {
+            if (v < minimum.get()) {
+                minimum.set(v);
+            }
+        });
         return minimum.get();
+    }
+
+    public String getQuantitativeCorrectness() {
+        double correctness = ticks.size() / tocks.size() * 100;
+        return correctness +"%";
     }
 }
