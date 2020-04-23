@@ -1,6 +1,7 @@
 package com.baqend.client;
 
 import com.baqend.LatencyMeasurement;
+import com.baqend.query.Query;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -29,7 +30,7 @@ public class FlinkThread extends Thread {
 
     private String query;
     private static final String EXCHANGE_NAME = "benchmark";
-    private static final String QUEUE_NAME = "flink";
+    private static final String QUEUE_NAME = "flinkTest";
 
     public FlinkThread(String query) {
         this.query = query;
@@ -58,6 +59,7 @@ public class FlinkThread extends Thread {
             Channel channel = connection.createChannel();
 
             channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+            channel.queueDeclare(QUEUE_NAME, true, false, false, null);
             channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
             final DataStream<String> rabbitMQStream = env
@@ -66,6 +68,7 @@ public class FlinkThread extends Thread {
                             QUEUE_NAME,
                             true,
                             new SimpleStringSchema()));
+
 
             tableEnv.createTemporaryView("myTable", rabbitMQStream, "Message");
 
