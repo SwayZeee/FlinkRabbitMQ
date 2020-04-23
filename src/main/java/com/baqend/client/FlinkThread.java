@@ -1,6 +1,9 @@
 package com.baqend.client;
 
 import com.baqend.LatencyMeasurement;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -15,11 +18,18 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 public class FlinkThread extends Thread {
 
     private String query;
+    private static final String EXCHANGE_NAME = "benchmark";
+    private static final String QUEUE_NAME = "flink";
 
     public FlinkThread(String query) {
         this.query = query;
@@ -42,21 +52,29 @@ public class FlinkThread extends Thread {
                 .setPassword("guest")
                 .build();
 
-        final DataStream<String> rabbitMQStream = env
-                .addSource(new RMQSource<String>(
-                        connectionConfig,
-                        "hello",
-                        true,
-                        new SimpleStringSchema()));
+        try {
+            ConnectionFactory factory = connectionConfig.getConnectionFactory();
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
 
-        tableEnv.createTemporaryView("myTable", rabbitMQStream, "Message");
+            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+            channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
-        Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable WHERE Message LIKE 'Hello%'");
+            final DataStream<String> rabbitMQStream = env
+                    .addSource(new RMQSource<String>(
+                            connectionConfig,
+                            QUEUE_NAME,
+                            true,
+                            new SimpleStringSchema()));
 
-        // conversion of the queryTable to a retractStream
-        // indicating inserts with a true boolean flag
-        DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(queryTable, Row.class);
-        retractStream.map(new Mapper());
+            tableEnv.createTemporaryView("myTable", rabbitMQStream, "Message");
+
+            Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable WHERE Message LIKE 'Hello%'");
+
+            // conversion of the queryTable to a retractStream
+            // indicating inserts with a true boolean flag
+            DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(queryTable, Row.class);
+            retractStream.map(new Mapper());
 //        retractStream.print();
 
 //        TableSink sink = new CsvTableSink("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\flinkResults.txt", " ", 1, FileSystem.WriteMode.OVERWRITE);
@@ -70,11 +88,24 @@ public class FlinkThread extends Thread {
 //                "queueName",
 //                new SimpleStringSchema()));
 
-        try {
-            env.execute("Test Job");
-        } catch (Exception e) {
+            try {
+                env.execute("Test Job");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     public static class Mapper implements MapFunction<Tuple2<Boolean, Row>, String> {
