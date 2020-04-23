@@ -31,23 +31,30 @@ public class LoadGenerator {
     }
 
     public void start() throws InterruptedException, IOException, TimeoutException {
+        long startTime = System.currentTimeMillis();
         System.out.println("Benchmark started");
         double x = 1;
-        int rounds = 300;
+        int rounds = 100;
         while (x <= rounds) {
             System.out.print("\rBenchmark in progess: " + (int) (x / rounds * 100) + "%");
             step();
             x++;
             Thread.sleep(1000);
         }
+        long stopTime = System.currentTimeMillis();
+        long executionTime = stopTime - startTime;
         System.out.println();
-        System.out.println("Benchmark done");
+        System.out.println("Benchmark done - Execution Time: " + executionTime + "ms");
+        double throughput = rounds / (executionTime / 1000);
+        System.out.println("Throughput: " + throughput + " ops/s");
+        Thread.sleep(1000);
     }
 
     public void stop() throws IOException {
         Map<UUID, Long> latencies = LatencyMeasurement.getInstance().calculateAllLatencies();
-        latencies.forEach((k, v) -> System.out.println(k + " : " + v + "ms"));
+        //latencies.forEach((k, v) -> System.out.println(k + " : " + v + "ms"));
 
+        System.out.println("Quantitative Correctness: " + LatencyMeasurement.getInstance().getQuantitativeCorrectness());
         System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
         System.out.println("Median: " + LatencyMeasurement.getInstance().calculateMedian() + "ms");
         System.out.println("Maximum: " + LatencyMeasurement.getInstance().getMaximumLatency() + "ms");
@@ -57,8 +64,6 @@ public class LoadGenerator {
     }
 
     public void step() throws IOException, TimeoutException {
-        // Maybe move tick closer to query execution (e.g. Client)
-        // MessageReceiver here?
         UUID uuid = UUID.randomUUID();
         LatencyMeasurement.getInstance().tick(uuid);
         client.updateData(uuid);
