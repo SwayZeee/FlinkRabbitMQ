@@ -9,9 +9,9 @@ import java.util.concurrent.TimeoutException;
 public class RMQMessageSender {
 
     private static RMQMessageSender single_instance = null;
-    private Connection connection;
-    private Channel channel;
-    private String EXCHANGE_NAME = "benchmark";
+    private final Connection connection;
+    private final Channel channel;
+    private final String EXCHANGE_NAME = "benchmark";
 
     private RMQMessageSender() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();

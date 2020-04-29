@@ -7,15 +7,13 @@ import java.util.concurrent.TimeoutException;
 
 public class RMQMessageReceiver {
 
-    private Connection connection;
-    private Channel channel;
     private static final String EXCHANGE_NAME = "benchmark";
 
     public RMQMessageReceiver() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-        connection = factory.newConnection();
-        channel = connection.createChannel();
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
 
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
         String queueName = channel.queueDeclare().getQueue();
