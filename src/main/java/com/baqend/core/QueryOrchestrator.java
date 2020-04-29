@@ -1,12 +1,12 @@
-package com.baqend;
+package com.baqend.core;
 
 import com.baqend.client.Client;
 import com.baqend.query.Query;
 
 public class QueryOrchestrator {
 
-    private Query query;
-    private Client client;
+    private final Query query;
+    private final Client client;
 
     public QueryOrchestrator(Query query, Client client) {
         this.query = query;

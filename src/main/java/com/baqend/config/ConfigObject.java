@@ -1,4 +1,4 @@
-package com.baqend;
+package com.baqend.config;
 
 public class ConfigObject {
     public int clientToTest;

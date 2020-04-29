@@ -1,11 +1,9 @@
-package com.baqend.client;
+package com.baqend.client.flink;
 
-import com.baqend.LatencyMeasurement;
-import com.baqend.query.Query;
+import com.baqend.core.LatencyMeasurement;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -17,23 +15,15 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.Collector;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 public class FlinkThread extends Thread {
 
-    private String query;
     private static final String EXCHANGE_NAME = "benchmark";
     private static final String QUEUE_NAME = "flinkTest";
 
     public FlinkThread(String query) {
-        this.query = query;
     }
 
     public void run() {
@@ -63,7 +53,7 @@ public class FlinkThread extends Thread {
             channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
             final DataStream<String> rabbitMQStream = env
-                    .addSource(new RMQSource<String>(
+                    .addSource(new RMQSource<>(
                             connectionConfig,
                             QUEUE_NAME,
                             true,
@@ -96,24 +86,15 @@ public class FlinkThread extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
 
     }
 
     public static class Mapper implements MapFunction<Tuple2<Boolean, Row>, String> {
         @Override
-        public String map(Tuple2<Boolean, Row> booleanRowTuple2) throws Exception {
+        public String map(Tuple2<Boolean, Row> booleanRowTuple2) {
             LatencyMeasurement.getInstance().tock(UUID.fromString(booleanRowTuple2.f1.toString().substring(13)));
             return booleanRowTuple2.f1.toString().substring(13);
         }

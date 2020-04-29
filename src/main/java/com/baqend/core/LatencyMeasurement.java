@@ -1,4 +1,4 @@
-package com.baqend;
+package com.baqend.core;
 
 
 import java.util.HashMap;
@@ -14,8 +14,8 @@ import static java.util.stream.Collectors.toMap;
 public class LatencyMeasurement {
 
     private static LatencyMeasurement singleton = null;
-    private Map<UUID, Long> ticks = new ConcurrentHashMap<>();
-    private Map<UUID, Long> tocks = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> ticks = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> tocks = new ConcurrentHashMap<>();
     private UUID initialTick;
 
     private LatencyMeasurement() {
@@ -38,7 +38,6 @@ public class LatencyMeasurement {
 
     public void tock() {
         tocks.put(initialTick, System.currentTimeMillis());
-
     }
 
     public void tock(UUID id) {
@@ -52,7 +51,7 @@ public class LatencyMeasurement {
     }
 
     public Map<UUID, Long> calculateAllLatencies() {
-        Map<UUID, Long> latencies = new HashMap();
+        Map<UUID, Long> latencies = new HashMap<>();
         ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
         return latencies;
     }
@@ -67,20 +66,20 @@ public class LatencyMeasurement {
         AtomicLong index = new AtomicLong();
         index.set(0);
         // calculating all latencies
-        Map<UUID, Long> latencies = new HashMap();
+        Map<UUID, Long> latencies = new HashMap<>();
         ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
         // sorting the calculated latencies
         Map<UUID, Long> sortedLatencies =
                 latencies.entrySet().stream()
-                        .sorted(comparingByValue()).collect(toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
+                        .sorted(comparingByValue()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
         // map sorted latencies to an indexed map
-        Map<Long, Long> indexedSortedLatencies = new HashMap();
+        Map<Long, Long> indexedSortedLatencies = new HashMap<>();
         sortedLatencies.forEach((k, v) -> {
             indexedSortedLatencies.put(index.get(), calculateLatency(k));
             index.set(index.get() + 1);
         });
         // returning the median
-        long medianIndex = 0;
+        long medianIndex;
         if (indexedSortedLatencies.size() % 2 == 1) {
             medianIndex = (latencies.size() - 1) / 2;
             return indexedSortedLatencies.get(medianIndex);
@@ -113,7 +112,7 @@ public class LatencyMeasurement {
     }
 
     public String getQuantitativeCorrectness() {
-        double correctness = ticks.size() / tocks.size() * 100;
-        return correctness +"%";
+        int correctness = ticks.size() / tocks.size() * 100;
+        return tocks.size() + "/" + ticks.size() + " (" + correctness + "%)";
     }
 }

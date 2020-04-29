@@ -1,17 +1,20 @@
 package com.baqend.client;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 public interface Client {
     void doQuery(String query);
 
-    void setup() throws Exception;
+    void setup();
 
     void warmUp();
 
-    void updateData(UUID uuid) throws IOException, TimeoutException;
+    void insert(String table, String key, HashMap<String, String> values, UUID transactionID);
 
-    void deleteData();
+    void update(String table, String key, HashMap<String, String> values, UUID transactionID);
+
+    void delete(String table, String key, UUID transactionID);
+
+    void cleanUp();
 }

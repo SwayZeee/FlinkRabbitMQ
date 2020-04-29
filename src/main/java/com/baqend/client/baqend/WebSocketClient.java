@@ -1,7 +1,6 @@
-package com.baqend.utils;
+package com.baqend.client.baqend;
 
-import com.baqend.LatencyMeasurement;
-import com.baqend.QueryResult;
+import com.baqend.core.LatencyMeasurement;
 import com.google.gson.Gson;
 
 import javax.websocket.*;
@@ -41,9 +40,15 @@ public class WebSocketClient {
             this.latencyMeasurement.tock();
             return;
         }
-        Gson gson = new Gson();
-        QueryResult queryResult = gson.fromJson(message, QueryResult.class);
-        this.latencyMeasurement.tock(UUID.fromString(queryResult.getTestName()));
+        //System.out.println(message);
+        try {
+            Gson gson = new Gson();
+            QueryResult queryResult = gson.fromJson(message, QueryResult.class);
+            this.latencyMeasurement.tock(UUID.fromString(queryResult.getTransactionID()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void sendMessage(String message) {

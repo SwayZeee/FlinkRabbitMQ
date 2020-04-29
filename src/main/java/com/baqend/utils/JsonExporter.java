@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonExporter {
-    private Gson gson;
+    private final Gson gson;
 
     public JsonExporter() {
         gson = new GsonBuilder().setPrettyPrinting().create();

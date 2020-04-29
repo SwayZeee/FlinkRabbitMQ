@@ -1,8 +1,9 @@
-package com.baqend;
+package com.baqend.core;
 
-import com.baqend.client.BaqendClient;
+import com.baqend.client.baqend.BaqendClient;
 import com.baqend.client.Client;
-import com.baqend.client.FlinkClient;
+import com.baqend.client.flink.FlinkClient;
+import com.baqend.config.ConfigObject;
 import com.baqend.query.ExampleQuery;
 import com.baqend.query.Query;
 import com.google.gson.Gson;
@@ -14,7 +15,7 @@ public class Benchmark {
         System.out.println("+++ Benchmark started +++");
 
         Gson gson = new Gson();
-        ConfigObject configObject = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config.json"), ConfigObject.class);
+        ConfigObject configObject = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
         System.out.println("Configuration file loaded");
 
         Client client;
