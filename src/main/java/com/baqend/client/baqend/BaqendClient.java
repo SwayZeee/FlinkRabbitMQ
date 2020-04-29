@@ -51,7 +51,7 @@ public class BaqendClient implements Client {
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
         try {
-            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeInsertString(key, values, transactionID));
+            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeRequestString(table, key, values, transactionID));
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(configObject.baqendHttpBaseUri + "/db/" + table);
@@ -68,7 +68,7 @@ public class BaqendClient implements Client {
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
         try {
-            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeUpdateString(table, key, values, transactionID));
+            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeRequestString(table, key, values, transactionID));
 
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpPut httpPut = new HttpPut(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
