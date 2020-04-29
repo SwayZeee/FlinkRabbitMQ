@@ -5,13 +5,13 @@ import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-public class MessageReceiver {
+public class RMQMessageReceiver {
 
     private Connection connection;
     private Channel channel;
     private static final String EXCHANGE_NAME = "benchmark";
 
-    public MessageReceiver() throws IOException, TimeoutException {
+    public RMQMessageReceiver() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
@@ -36,7 +36,7 @@ public class MessageReceiver {
             }
 
             @Override
-            public void handleCancel(String s) throws IOException {
+            public void handleCancel(String s) {
 
             }
 
@@ -51,7 +51,7 @@ public class MessageReceiver {
             }
 
             @Override
-            public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
+            public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
                 String message = new String(bytes);
                 System.out.println(message);
             }

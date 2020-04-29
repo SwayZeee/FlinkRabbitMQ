@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class MessageSender {
+public class RMQMessageSender {
 
-    private static MessageSender single_instance = null;
+    private static RMQMessageSender single_instance = null;
     private Connection connection;
     private Channel channel;
     private String EXCHANGE_NAME = "benchmark";
 
-    private MessageSender() throws IOException, TimeoutException {
+    private RMQMessageSender() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
@@ -22,9 +22,9 @@ public class MessageSender {
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
     }
 
-    public static MessageSender getInstance() throws IOException, TimeoutException {
+    public static RMQMessageSender getInstance() throws IOException, TimeoutException {
         if (single_instance == null) {
-            single_instance = new MessageSender();
+            single_instance = new RMQMessageSender();
         }
         return single_instance;
     }
