@@ -42,32 +42,7 @@ public class Benchmark {
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
         loadGenerator.setup();
         loadGenerator.warmUp();
-        double startTime = System.currentTimeMillis();
         loadGenerator.start();
-        double stopTime = System.currentTimeMillis();
-        double executionTime = stopTime - startTime;
-        System.out.println();
-        System.out.println("Benchmark done - Execution Time: " + executionTime + "ms");
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        stop();
-    }
-
-    public static void stop() {
-        JsonExporter jsonExporter = new JsonExporter();
-        System.out.println("Quantitative Correctness: " + LatencyMeasurement.getInstance().getQuantitativeCorrectness());
-        System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
-        System.out.println("Median: " + LatencyMeasurement.getInstance().calculateMedian() + "ms");
-        System.out.println("Maximum: " + LatencyMeasurement.getInstance().getMaximumLatency() + "ms");
-        System.out.println("Minimum: " + LatencyMeasurement.getInstance().getMinimumLatency() + "ms");
-        Map<UUID, Long> latencies = LatencyMeasurement.getInstance().calculateAllLatencies();
-        try {
-            jsonExporter.exportToJsonFile(latencies);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        loadGenerator.stop();
     }
 }
