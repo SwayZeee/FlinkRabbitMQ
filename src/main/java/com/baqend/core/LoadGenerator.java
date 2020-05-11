@@ -34,7 +34,7 @@ public class LoadGenerator {
         System.out.println("Benchmark started");
         double x = 1;
         double rounds = 60;
-        int throughput = 25000; // ops/s
+        int throughput = 2000; // ops/s
         double startTime = System.currentTimeMillis();
         while (x <= rounds) {
             System.out.print("\rBenchmark in progess: " + (int) (x / rounds * 100) + "%");
@@ -60,7 +60,7 @@ public class LoadGenerator {
         }
     }
 
-    public static void stop() {
+    public void stop() {
         JsonExporter jsonExporter = new JsonExporter();
         System.out.println("Quantitative Correctness: " + LatencyMeasurement.getInstance().getQuantitativeCorrectness());
         System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
@@ -82,8 +82,8 @@ public class LoadGenerator {
         values.put("testName", transactionID.toString());
 
         LatencyMeasurement.getInstance().tick(transactionID);
-        //client.insert("Test", transactionID.toString(), values, transactionID);
-        client.update("Test", "f822e35d-03f2-433b-a361-3e0794b72582", values, transactionID);
+        client.insert("Test", transactionID.toString(), values, transactionID);
+        //client.update("Test", "bbdc4d81-bbc0-4500-bec3-8d069b5ae2ad", values, transactionID);
         //client.delete("Test", "4eb13cec-b9b4-4ebb-98db-99c2d65c7ae5", transactionID);
     }
 

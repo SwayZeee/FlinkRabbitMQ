@@ -1,5 +1,5 @@
 {
-  "clientToTest": 2,
-  "baqendWebsocketUri": "wss://benchmark.events.baqend.com/v1/events",
-  "baqendHttpBaseUri": "https://benchmark.app.baqend.com/v1"
+  "clientToTest": 1,
+  "baqendWebsocketUri": "ws://localhost:8080/v1/events",
+  "baqendHttpBaseUri": "http://localhost:8080/v1"
 }
