@@ -10,7 +10,6 @@ import java.util.UUID;
 @ClientEndpoint
 public class WebSocketClient {
     Session userSession = null;
-    LatencyMeasurement latencyMeasurement;
 
     public WebSocketClient(URI endpointURI) {
         try {
@@ -19,7 +18,6 @@ public class WebSocketClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        latencyMeasurement = LatencyMeasurement.getInstance();
     }
 
     @OnOpen
@@ -37,25 +35,20 @@ public class WebSocketClient {
     @OnMessage
     public void onMessage(String message) {
         if (message.contains("\"type\":\"result\"")) {
-            this.latencyMeasurement.tock();
+            LatencyMeasurement.getInstance().tock();
             return;
         }
         //System.out.println(message);
         try {
             Gson gson = new Gson();
             QueryResult queryResult = gson.fromJson(message, QueryResult.class);
-            this.latencyMeasurement.tock(UUID.fromString(queryResult.getTransactionID()));
+            LatencyMeasurement.getInstance().tock(UUID.fromString(queryResult.getTransactionID()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void sendMessage(String message) {
         this.userSession.getAsyncRemote().sendText(message);
-    }
-
-    public Session getUserSession() {
-        return userSession;
     }
 }
