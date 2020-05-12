@@ -115,4 +115,23 @@ public class LatencyMeasurement {
         int correctness = ticks.size() / tocks.size() * 100;
         return tocks.size() + "/" + ticks.size() + " (" + correctness + "%)";
     }
+
+    public Long calculateNthPercentile(double n) {
+        AtomicLong index = new AtomicLong();
+        index.set(0);
+        // calculating all latencies
+        Map<UUID, Long> latencies = new HashMap<>();
+        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        // sorting the calculated latencies
+        Map<UUID, Long> sortedLatencies =
+                latencies.entrySet().stream()
+                        .sorted(comparingByValue()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+        // map sorted latencies to an indexed map
+        Map<Long, Long> indexedSortedLatencies = new HashMap<>();
+        sortedLatencies.forEach((k, v) -> {
+            indexedSortedLatencies.put(index.get(), calculateLatency(k));
+            index.set(index.get() + 1);
+        });
+        return indexedSortedLatencies.get(Double.valueOf(Math.ceil(indexedSortedLatencies.size() * n)).longValue());
+    }
 }
