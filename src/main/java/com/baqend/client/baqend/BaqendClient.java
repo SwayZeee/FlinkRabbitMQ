@@ -3,12 +3,11 @@ package com.baqend.client.baqend;
 import com.baqend.config.ConfigObject;
 import com.baqend.core.LatencyMeasurement;
 import com.baqend.client.Client;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import com.baqend.utils.HttpClient;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,50 +49,29 @@ public class BaqendClient implements Client {
 
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        try {
-            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeRequestString(table, key, values, transactionID));
-
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost(configObject.baqendHttpBaseUri + "/db/" + table);
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setEntity(stringEntity);
-            httpClient.execute(httpPost);
-            httpClient.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HttpClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
+                baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
+        );
     }
 
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        try {
-            StringEntity stringEntity = new StringEntity(baqendRequestBuilder.composeRequestString(table, key, values, transactionID));
-
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPut httpPut = new HttpPut(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
-            httpPut.setHeader("Accept", "application/json");
-            httpPut.setHeader("Content-type", "application/json");
-            httpPut.setEntity(stringEntity);
-            httpClient.execute(httpPut);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HttpClient.getInstance().put(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key,
+                baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
+        );
     }
 
     @Override
     public void delete(String table, String key, UUID transactionID) {
-        try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpDelete httpDelete = new HttpDelete(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
-            httpClient.execute(httpDelete);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HttpClient.getInstance().delete(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
     }
 
     @Override
     public void cleanUp() {
-
+        HttpClient.getInstance().stop();
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("local");
+        MongoCollection<Document> collection = db.getCollection("Test");
+        collection.drop();
     }
 }
