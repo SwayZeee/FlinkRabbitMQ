@@ -3,26 +3,34 @@ package com.baqend.core;
 import com.baqend.client.Client;
 import com.baqend.config.ConfigObject;
 import com.baqend.utils.JsonExporter;
+import com.baqend.utils.RandomDataGenerator;
+import com.baqend.workload.LoadData;
+import com.google.gson.Gson;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class LoadGenerator {
 
     private final Client client;
+    private final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
 
     public LoadGenerator(Client client, ConfigObject configObject) {
         this.client = client;
     }
 
-    public void setup() {
+    public void setup() throws FileNotFoundException {
         System.out.println("Performing setup");
-        // TODO: random workload generation and saving of ids in a textfile
-        // array of ids and data
-        // pass to setup method
-        client.setup();
+        double startTime = System.currentTimeMillis();
+        Gson gson = new Gson();
+        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
+        client.setup("Test", loadData);
+        double stopTime = System.currentTimeMillis();
+        double executionTime = stopTime - startTime;
+        System.out.print("Setup completed (" + executionTime + "ms) - loaded " + loadData.getLoad().size() + " datasets to database");
     }
 
     public void warmUp() {
@@ -60,6 +68,14 @@ public class LoadGenerator {
         }
     }
 
+    public void step() {
+        UUID transactionID = UUID.randomUUID();
+        LatencyMeasurement.getInstance().tick(transactionID);
+        client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(), transactionID);
+        //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(), transactionID);
+        //client.delete("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", transactionID);
+    }
+
     public void stop() {
         System.out.println("Quantitative Correctness: " + LatencyMeasurement.getInstance().getQuantitativeCorrectness());
         System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
@@ -69,26 +85,13 @@ public class LoadGenerator {
         System.out.println("90th Percentile: " + LatencyMeasurement.getInstance().calculateNthPercentile(0.9) + "ms");
         System.out.println("95th Percentile: " + LatencyMeasurement.getInstance().calculateNthPercentile(0.95) + "ms");
         System.out.println("99th Percentile: " + LatencyMeasurement.getInstance().calculateNthPercentile(0.99) + "ms");
-        Map<UUID, Long> latencies = LatencyMeasurement.getInstance().calculateAllLatencies();
+        HashMap<UUID, Long> latencies = LatencyMeasurement.getInstance().calculateAllLatencies();
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportToJsonFile(latencies);
+            jsonExporter.exportLatenciesToJsonFile(latencies);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        client.cleanUp();
+        client.cleanUp("Test");
     }
-
-    public void step() {
-        UUID transactionID = UUID.randomUUID();
-
-        HashMap<String, String> values = new HashMap<>();
-        values.put("testName", transactionID.toString());
-
-        LatencyMeasurement.getInstance().tick(transactionID);
-        client.insert("Test", transactionID.toString(), values, transactionID);
-        //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", values, transactionID);
-        //client.delete("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", transactionID);
-    }
-
 }
