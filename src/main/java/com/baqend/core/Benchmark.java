@@ -6,13 +6,9 @@ import com.baqend.client.flink.FlinkClient;
 import com.baqend.config.ConfigObject;
 import com.baqend.query.ExampleQuery;
 import com.baqend.query.Query;
-import com.baqend.utils.JsonExporter;
 import com.google.gson.Gson;
 
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
 
 public class Benchmark {
     public static void main(String[] args) throws Exception {
@@ -35,13 +31,12 @@ public class Benchmark {
         }
 
         Query query = new ExampleQuery();
-
         QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
-        queryOrchestrator.registerQuery();
-
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
-        loadGenerator.setup();
-        loadGenerator.warmUp();
+
+        //loadGenerator.setup();
+        queryOrchestrator.registerQuery();
+        //loadGenerator.warmUp();
         loadGenerator.start();
         loadGenerator.stop();
     }
