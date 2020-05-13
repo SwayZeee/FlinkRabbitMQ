@@ -3,7 +3,9 @@ package com.baqend.client.flink;
 import com.baqend.config.ConfigObject;
 import com.baqend.client.Client;
 import com.baqend.messaging.RMQMessageSender;
+import com.baqend.utils.HttpClient;
 import com.baqend.workload.LoadData;
+import com.baqend.workload.LoadDataSet;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -25,9 +27,13 @@ public class FlinkClient implements Client {
     }
 
     public void setup(String table, LoadData loadData) {
-//        for (int i = 0; i < 100; i++) {
-//            MessageSender.getInstance().sendMessage("Hello World!");
-//        }
+        for (LoadDataSet loadDataSet : loadData.getLoad()) {
+            try {
+                RMQMessageSender.getInstance().sendMessage(loadDataSet.getUuid() + "," + loadDataSet.getData().get("number"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void warmUp() {
