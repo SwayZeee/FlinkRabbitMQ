@@ -1,12 +1,14 @@
 package com.baqend.client;
 
+import com.baqend.workload.LoadData;
+
 import java.util.HashMap;
 import java.util.UUID;
 
 public interface Client {
     void doQuery(String query);
 
-    void setup();
+    void setup(String table, LoadData loadData);
 
     void warmUp();
 
@@ -16,5 +18,5 @@ public interface Client {
 
     void delete(String table, String key, UUID transactionID);
 
-    void cleanUp();
+    void cleanUp(String table);
 }
