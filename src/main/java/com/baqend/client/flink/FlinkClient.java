@@ -3,6 +3,7 @@ package com.baqend.client.flink;
 import com.baqend.config.ConfigObject;
 import com.baqend.client.Client;
 import com.baqend.messaging.RMQMessageSender;
+import com.baqend.workload.LoadData;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class FlinkClient implements Client {
         }
     }
 
-    public void setup() {
+    public void setup(String table, LoadData loadData) {
 //        for (int i = 0; i < 100; i++) {
 //            MessageSender.getInstance().sendMessage("Hello World!");
 //        }
@@ -53,7 +54,7 @@ public class FlinkClient implements Client {
     }
 
     @Override
-    public void cleanUp() {
+    public void cleanUp(String table) {
 
     }
 }
