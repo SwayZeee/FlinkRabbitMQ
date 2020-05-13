@@ -4,6 +4,8 @@ import com.baqend.config.ConfigObject;
 import com.baqend.core.LatencyMeasurement;
 import com.baqend.client.Client;
 import com.baqend.utils.HttpClient;
+import com.baqend.workload.LoadData;
+import com.baqend.workload.LoadDataSet;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -41,7 +43,13 @@ public class BaqendClient implements Client {
         webSocketClient.sendMessage(queryString);
     }
 
-    public void setup() {
+    public void setup(String table, LoadData loadData) {
+        for (LoadDataSet loadDataSet : loadData.getLoad()) {
+            HttpClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
+                    baqendRequestBuilder.composeRequestString(table, loadDataSet.getUuid().toString(), loadDataSet.getData())
+            );
+        }
+        HttpClient.getInstance().stop();
     }
 
     public void warmUp() {
@@ -67,11 +75,11 @@ public class BaqendClient implements Client {
     }
 
     @Override
-    public void cleanUp() {
+    public void cleanUp(String table) {
         HttpClient.getInstance().stop();
-        MongoClient mongoClient = new MongoClient();
-        MongoDatabase db = mongoClient.getDatabase("local");
-        MongoCollection<Document> collection = db.getCollection("Test");
-        collection.drop();
+//        MongoClient mongoClient = new MongoClient();
+//        MongoDatabase db = mongoClient.getDatabase("local");
+//        MongoCollection<Document> collection = db.getCollection(table);
+//        collection.drop();
     }
 }
