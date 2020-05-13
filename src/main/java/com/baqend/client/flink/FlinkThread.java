@@ -59,7 +59,6 @@ public class FlinkThread extends Thread {
                             true,
                             new SimpleStringSchema()));
 
-
             tableEnv.createTemporaryView("myTable", rabbitMQStream, "Message");
 
             Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable WHERE Message LIKE 'Hello%'");
