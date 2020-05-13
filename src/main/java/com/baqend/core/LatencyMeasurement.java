@@ -50,8 +50,8 @@ public class LatencyMeasurement {
         return end - start;
     }
 
-    public Map<UUID, Long> calculateAllLatencies() {
-        Map<UUID, Long> latencies = new HashMap<>();
+    public HashMap<UUID, Long> calculateAllLatencies() {
+        HashMap<UUID, Long> latencies = new HashMap<>();
         ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
         return latencies;
     }
