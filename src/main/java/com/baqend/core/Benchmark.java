@@ -34,8 +34,8 @@ public class Benchmark {
         QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
 
-        //loadGenerator.setup();
         queryOrchestrator.registerQuery();
+        //loadGenerator.setup();
         //loadGenerator.warmUp();
         loadGenerator.start();
         loadGenerator.stop();
