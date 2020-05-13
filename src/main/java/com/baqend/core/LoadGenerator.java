@@ -71,12 +71,17 @@ public class LoadGenerator {
     public void step() {
         UUID transactionID = UUID.randomUUID();
         LatencyMeasurement.getInstance().tick(transactionID);
-        client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(), transactionID);
-        //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(), transactionID);
+        //client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(), transactionID);
+        client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(), transactionID);
         //client.delete("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", transactionID);
     }
 
     public void stop() {
+        doCalculationsAndExport();
+        client.cleanUp("Test");
+    }
+
+    public void doCalculationsAndExport() {
         System.out.println("Quantitative Correctness: " + LatencyMeasurement.getInstance().getQuantitativeCorrectness());
         System.out.println("Average: " + LatencyMeasurement.getInstance().calculateAverage() + "ms");
         System.out.println("Median: " + LatencyMeasurement.getInstance().calculateMedian() + "ms");
@@ -92,6 +97,5 @@ public class LoadGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        client.cleanUp("Test");
     }
 }

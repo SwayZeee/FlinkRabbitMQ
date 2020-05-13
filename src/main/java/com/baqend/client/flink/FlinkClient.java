@@ -42,7 +42,7 @@ public class FlinkClient implements Client {
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
         try {
-            RMQMessageSender.getInstance().sendMessage("Hello World! " + transactionID);
+            RMQMessageSender.getInstance().sendMessage(transactionID.toString() + "," + "Patrick");
         } catch (Exception e) {
             e.printStackTrace();
         }

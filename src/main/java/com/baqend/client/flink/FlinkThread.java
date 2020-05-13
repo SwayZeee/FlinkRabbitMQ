@@ -8,6 +8,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource;
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig;
@@ -52,22 +53,22 @@ public class FlinkThread extends Thread {
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
             channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
-            final DataStream<String> rabbitMQStream = env
+            final DataStreamSource<EventMessage> rabbitMQStream = env
                     .addSource(new RMQSource<>(
                             connectionConfig,
                             QUEUE_NAME,
                             true,
-                            new SimpleStringSchema()));
+                            new EventMessageDeserializationSchema()));
 
-            tableEnv.createTemporaryView("myTable", rabbitMQStream, "Message");
+            tableEnv.createTemporaryView("myTable", rabbitMQStream, "id, name");
 
-            Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable WHERE Message LIKE 'Hello%'");
+            Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable");
 
             // conversion of the queryTable to a retractStream
             // indicating inserts with a true boolean flag
             DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(queryTable, Row.class);
             retractStream.map(new Mapper());
-//        retractStream.print();
+            //retractStream.print();
 
 //        TableSink sink = new CsvTableSink("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\flinkResults.txt", " ", 1, FileSystem.WriteMode.OVERWRITE);
 //        String[] fieldNames = {"Message"};
@@ -94,8 +95,8 @@ public class FlinkThread extends Thread {
     public static class Mapper implements MapFunction<Tuple2<Boolean, Row>, String> {
         @Override
         public String map(Tuple2<Boolean, Row> booleanRowTuple2) {
-            LatencyMeasurement.getInstance().tock(UUID.fromString(booleanRowTuple2.f1.toString().substring(13)));
-            return booleanRowTuple2.f1.toString().substring(13);
+            LatencyMeasurement.getInstance().tock(UUID.fromString(booleanRowTuple2.f1.toString().substring(0, 36)));
+            return booleanRowTuple2.f1.toString();
         }
     }
 
