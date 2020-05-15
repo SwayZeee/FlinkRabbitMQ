@@ -16,10 +16,12 @@ import java.util.concurrent.CompletableFuture;
 public class LoadGenerator {
 
     private final Client client;
+    private final ConfigObject configObject;
     private final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
 
     public LoadGenerator(Client client, ConfigObject configObject) {
         this.client = client;
+        this.configObject = configObject;
     }
 
     public void setup() throws FileNotFoundException {
@@ -40,8 +42,8 @@ public class LoadGenerator {
 
     public void start() {
         double x = 1;
-        double rounds = 60;
-        int throughput = 2500; // ops/s
+        double rounds = configObject.duration;
+        int throughput = configObject.throughput;
 
         System.out.println("Benchmark started - Throughput: " + throughput + " ops/s");
         double startTime = System.currentTimeMillis();
@@ -62,7 +64,7 @@ public class LoadGenerator {
         System.out.println();
         System.out.println("Benchmark done - Execution Time: " + executionTime + "ms");
         try {
-            Thread.sleep(15000);
+            Thread.sleep(configObject.waitingTime);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,14 +73,14 @@ public class LoadGenerator {
     public void step() {
         UUID transactionID = UUID.randomUUID();
         LatencyMeasurement.getInstance().tick(transactionID);
-        //client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(), transactionID);
-        client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(), transactionID);
+        client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(), transactionID);
+        //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(), transactionID);
         //client.delete("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", transactionID);
     }
 
     public void stop() {
-        doCalculationsAndExport();
         client.cleanUp("Test");
+        doCalculationsAndExport();
     }
 
     public void doCalculationsAndExport() {
