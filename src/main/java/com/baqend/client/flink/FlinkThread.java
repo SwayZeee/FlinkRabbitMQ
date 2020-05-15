@@ -1,11 +1,11 @@
 package com.baqend.client.flink;
 
+import com.baqend.client.flink.aggregator.LastStringValue;
 import com.baqend.core.LatencyMeasurement;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -31,6 +31,7 @@ public class FlinkThread extends Thread {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        tableEnv.registerFunction("LastStringValue", new LastStringValue());
 
 //        DataStream<String> dataStream = env
 //                .readTextFile("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\FlinkRabbitMQ\\src\\main\\java\\org\\example\\test.txt")
@@ -62,7 +63,7 @@ public class FlinkThread extends Thread {
 
             tableEnv.createTemporaryView("myTable", rabbitMQStream, "id, name");
 
-            Table queryTable = tableEnv.sqlQuery("SELECT * FROM myTable");
+            Table queryTable = tableEnv.sqlQuery("SELECT LastStringValue(id), name AS last_id FROM myTable GROUP BY name");
 
             // conversion of the queryTable to a retractStream
             // indicating inserts with a true boolean flag
