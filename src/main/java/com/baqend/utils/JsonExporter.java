@@ -19,7 +19,7 @@ public class JsonExporter {
 
     public void exportLatenciesToJsonFile(HashMap<UUID, Long> data) throws IOException {
         long timeStamp = System.currentTimeMillis();
-        Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\results\\" + timeStamp + ".json");
+        Writer writer = new FileWriter("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\" + timeStamp + ".json");
         gson.toJson(data, writer);
         writer.flush();
         writer.close();
@@ -27,7 +27,7 @@ public class JsonExporter {
     }
 
     public void exportInitialLoadToJsonFile(LoadData data) throws IOException {
-        Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\workload\\initialLoad.json");
+        Writer writer = new FileWriter("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json");
         gson.toJson(data, writer);
         writer.flush();
         writer.close();
