@@ -12,7 +12,6 @@ import java.util.concurrent.TimeoutException;
 public class WebSocketClient {
     public Session userSession = null;
     private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
-    private final Gson gson = new Gson();
 
     public WebSocketClient(URI endpointURI) throws IOException, TimeoutException {
         try {
@@ -41,10 +40,11 @@ public class WebSocketClient {
         try {
             if (message.contains("\"type\":\"result\"")) {
                 //LatencyMeasurement.getInstance().tock();
-                rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
+                //rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
                 return;
             }
             //System.out.println(message);
+            Gson gson = new Gson();
             QueryResult queryResult = gson.fromJson(message, QueryResult.class);
             //LatencyMeasurement.getInstance().tock(UUID.fromString(queryResult.getTransactionID()));
             rmqLatencySender.sendMessage("tock" + "," + 0 + "," + queryResult.getTransactionID() + "," + System.nanoTime());
