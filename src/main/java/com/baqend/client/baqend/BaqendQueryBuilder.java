@@ -11,6 +11,20 @@ public class BaqendQueryBuilder {
                 "  \"id\": \"" + userSession + "\",\n" +
                 "  \"type\": \"subscribe\",\n" +
                 "  \"token\": null,\n" +
+                "  \"initial\": true,\n" +
+                "  \"bucket\": \"Test\",\n" +
+                "  \"query\": \"{\\\"number\\\": 1}\",\n" +
+                "  \"operations\": [\n" +
+                "    \"any\"\n" +
+                "  ],\n" +
+                "  \"matchTypes\": [\n" +
+                "    \"all\"\n" +
+                "  ]\n}";
+
+        /*String queryString = "{\n" +
+                "  \"id\": \"" + userSession + "\",\n" +
+                "  \"type\": \"subscribe\",\n" +
+                "  \"token\": null,\n" +
                 "  \"initial\": true,\n";
         queryString = queryString.concat("  \"bucket\": \"Test\",\n");
         queryString = queryString.concat(
@@ -21,21 +35,8 @@ public class BaqendQueryBuilder {
                 "  \"matchTypes\": [\n" +
                 "    \"all\"\n" +
                 "  ]\n}");
-
+*/
         return queryString;
     }
 }
 
-/*String queryString1 = "{\n" +
-                "  \"id\": \"" + webSocketClient.userSession.getId().toString() + "\",\n" +
-                "  \"type\": \"subscribe\",\n" +
-                "  \"token\": null,\n" +
-                "  \"initial\": true,\n" +
-                "  \"bucket\": \"Test\",\n" +
-                "  \"query\": \"{\\\"testName\\\": \\\"Patrick\\\"}\",\n" +
-                "  \"operations\": [\n" +
-                "    \"any\"\n" +
-                "  ],\n" +
-                "  \"matchTypes\": [\n" +
-                "    \"all\"\n" +
-                "  ]\n}";*/
