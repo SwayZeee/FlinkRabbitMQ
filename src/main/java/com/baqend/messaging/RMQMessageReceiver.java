@@ -8,19 +8,21 @@ import java.util.concurrent.TimeoutException;
 public class RMQMessageReceiver {
 
     private static final String EXCHANGE_NAME = "benchmark";
+    private static Connection connection;
+    private static Channel channel;
 
     public RMQMessageReceiver() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
+        connection = factory.newConnection();
+        channel = connection.createChannel();
 
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, EXCHANGE_NAME, "");
 
-        System.out.println(" Exchange: " + EXCHANGE_NAME + " Queue: " + queueName);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+        System.out.println("Exchange: " + EXCHANGE_NAME + " Queue: " + queueName);
+        System.out.println("[*] Waiting for messages. To exit press CTRL+C");
 
         Consumer consumer = new Consumer() {
             @Override
@@ -55,5 +57,28 @@ public class RMQMessageReceiver {
             }
         };
         channel.basicConsume(queueName, true, consumer);
+    }
+
+    public void closeChannel() {
+        try {
+            channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        closeChannel();
+        closeConnection();
     }
 }
