@@ -3,11 +3,11 @@ package com.baqend.workload;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class LoadDataSet {
+public class SingleDataSet {
     private UUID uuid;
     private HashMap<String, String> data;
 
-    public LoadDataSet(UUID uuid, HashMap<String, String> data) {
+    public SingleDataSet(UUID uuid, HashMap<String, String> data) {
         this.uuid = uuid;
         this.data = data;
     }
