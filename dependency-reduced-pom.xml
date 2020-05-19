@@ -69,12 +69,7 @@
             </goals>
             <configuration>
               <artifactSet>
-                <excludes>
-                  <exclude>org.apache.flink:force-shading</exclude>
-                  <exclude>com.google.code.findbugs:jsr305</exclude>
-                  <exclude>org.slf4j:*</exclude>
-                  <exclude>log4j:*</exclude>
-                </excludes>
+                <excludes />
               </artifactSet>
               <filters>
                 <filter>
@@ -88,7 +83,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>com.baqend.StreamingJob</mainClass>
+                  <mainClass>com.baqend.core.Benchmark</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -140,18 +135,6 @@
           <groupId>org.apache.commons</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.7</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
   <properties>
