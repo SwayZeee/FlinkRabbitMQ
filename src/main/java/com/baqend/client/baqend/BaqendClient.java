@@ -1,31 +1,34 @@
 package com.baqend.client.baqend;
 
 import com.baqend.config.ConfigObject;
-import com.baqend.core.LatencyMeasurement;
 import com.baqend.client.Client;
 import com.baqend.utils.HttpClient;
 import com.baqend.workload.LoadData;
-import com.baqend.workload.LoadDataSet;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
+import com.baqend.workload.SingleDataSet;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 public class BaqendClient implements Client {
 
-    private final ConfigObject configObject;
-    private final WebSocketClient webSocketClient;
-    private final BaqendQueryBuilder baqendQueryBuilder;
-    private final BaqendRequestBuilder baqendRequestBuilder;
+    private ConfigObject configObject;
+    private WebSocketClient webSocketClient;
+    private BaqendQueryBuilder baqendQueryBuilder;
+    private BaqendRequestBuilder baqendRequestBuilder;
 
     public BaqendClient(ConfigObject configObject) throws URISyntaxException {
         this.configObject = configObject;
-        webSocketClient = new WebSocketClient(new URI(configObject.baqendWebsocketUri));
+        try {
+            webSocketClient = new WebSocketClient(new URI(configObject.baqendWebsocketUri));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
         baqendQueryBuilder = new BaqendQueryBuilder();
         baqendRequestBuilder = new BaqendRequestBuilder();
 
@@ -36,17 +39,13 @@ public class BaqendClient implements Client {
     public void doQuery(String query) {
         String queryString = baqendQueryBuilder.translateQuery(webSocketClient.userSession.toString(), query);
         System.out.println("Performing Query: " + queryString);
-
-        UUID uuid = UUID.randomUUID();
-        LatencyMeasurement.getInstance().tick(uuid);
-        LatencyMeasurement.getInstance().setInitialTick(uuid);
         webSocketClient.sendMessage(queryString);
     }
 
     public void setup(String table, LoadData loadData) {
-        for (LoadDataSet loadDataSet : loadData.getLoad()) {
+        for (SingleDataSet singleDataSet : loadData.getLoad()) {
             HttpClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
-                    baqendRequestBuilder.composeRequestString(table, loadDataSet.getUuid().toString(), loadDataSet.getData())
+                    baqendRequestBuilder.composeRequestString(table, singleDataSet.getUuid().toString(), singleDataSet.getData())
             );
         }
         HttpClient.getInstance().stop();
@@ -76,6 +75,11 @@ public class BaqendClient implements Client {
 
     @Override
     public void cleanUp(String table) {
+        try {
+            webSocketClient.userSession.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         HttpClient.getInstance().stop();
 //        MongoClient mongoClient = new MongoClient();
 //        MongoDatabase db = mongoClient.getDatabase("local");
