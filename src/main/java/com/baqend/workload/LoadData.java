@@ -3,13 +3,13 @@ package com.baqend.workload;
 import java.util.ArrayList;
 
 public class LoadData {
-    private ArrayList<LoadDataSet> load;
+    private ArrayList<SingleDataSet> load;
 
-    public ArrayList<LoadDataSet> getLoad() {
+    public ArrayList<SingleDataSet> getLoad() {
         return load;
     }
 
-    public void setLoad(ArrayList<LoadDataSet> load) {
+    public void setLoad(ArrayList<SingleDataSet> load) {
         this.load = load;
     }
 }
