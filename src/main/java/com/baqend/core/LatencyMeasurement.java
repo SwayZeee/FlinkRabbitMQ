@@ -187,7 +187,7 @@ public class LatencyMeasurement {
         index.set(0);
         // calculating all latencies
         Map<UUID, Long> latencies = new HashMap<>();
-        ticks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
+        tocks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
         // sorting the calculated latencies
         Map<UUID, Long> sortedLatencies =
                 latencies.entrySet().stream()
