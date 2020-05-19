@@ -14,7 +14,9 @@ public class QueryOrchestrator {
     }
 
     public void registerQuery() {
+        //UUID uuid = UUID.randomUUID();
+        //LatencyMeasurement.getInstance().tick(uuid);
+        //LatencyMeasurement.getInstance().setInitialTick(uuid, System.nanoTime());
         client.doQuery(query.getQuery());
     }
-
 }
