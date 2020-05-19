@@ -3,33 +3,36 @@ package com.baqend.client.flink;
 import com.baqend.config.ConfigObject;
 import com.baqend.client.Client;
 import com.baqend.messaging.RMQMessageSender;
-import com.baqend.utils.HttpClient;
 import com.baqend.workload.LoadData;
-import com.baqend.workload.LoadDataSet;
+import com.baqend.workload.SingleDataSet;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 public class FlinkClient implements Client {
 
-    public FlinkClient(ConfigObject configObject) {
+    private final RMQMessageSender rmqMessageSender = new RMQMessageSender();
+
+    public FlinkClient(ConfigObject configObject) throws IOException, TimeoutException {
     }
 
     public void doQuery(String query) {
-        FlinkThread flinkThread = new FlinkThread(query);
-        flinkThread.start();
-        // time delay for starting flink
-        try {
-            Thread.sleep(10000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        FlinkThread flinkThread = new FlinkThread(query);
+//        flinkThread.start();
+//        // time delay for starting flink
+//        try {
+//            Thread.sleep(15000);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void setup(String table, LoadData loadData) {
-        for (LoadDataSet loadDataSet : loadData.getLoad()) {
+        for (SingleDataSet singleDataSet : loadData.getLoad()) {
             try {
-                RMQMessageSender.getInstance().sendMessage(loadDataSet.getUuid() + "," + loadDataSet.getData().get("number"));
+                rmqMessageSender.sendMessage(singleDataSet.getUuid() + "," + singleDataSet.getData().get("number"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -43,7 +46,20 @@ public class FlinkClient implements Client {
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
         try {
-            RMQMessageSender.getInstance().sendMessage(transactionID.toString() + "," + "Patrick");
+            rmqMessageSender.sendMessage(
+                    transactionID + "," +
+                            key + "," +
+                            values.get("fieldOne") + "," +
+                            values.get("fieldTwo") + "," +
+                            values.get("fieldThree") + "," +
+                            values.get("fieldFour") + "," +
+                            values.get("fieldFive") + "," +
+                            values.get("fieldSix") + "," +
+                            values.get("fieldSeven") + "," +
+                            values.get("fieldEight") + "," +
+                            values.get("fieldNine") + "," +
+                            values.get("number")
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,7 +68,20 @@ public class FlinkClient implements Client {
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
         try {
-            RMQMessageSender.getInstance().sendMessage(transactionID.toString() + "," + "Patrick");
+            rmqMessageSender.sendMessage(
+                    transactionID + "," +
+                            key + "," +
+                            values.get("fieldOne") + "," +
+                            values.get("fieldTwo") + "," +
+                            values.get("fieldThree") + "," +
+                            values.get("fieldFour") + "," +
+                            values.get("fieldFive") + "," +
+                            values.get("fieldSix") + "," +
+                            values.get("fieldSeven") + "," +
+                            values.get("fieldEight") + "," +
+                            values.get("fieldNine") + "," +
+                            values.get("number")
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,11 +89,11 @@ public class FlinkClient implements Client {
 
     @Override
     public void delete(String table, String key, UUID transactionID) {
-
+        // not supported
     }
 
     @Override
     public void cleanUp(String table) {
-
+        rmqMessageSender.close();
     }
 }
