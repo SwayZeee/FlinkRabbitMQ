@@ -1,17 +1,19 @@
 package com.baqend.client.baqend;
 
-import com.baqend.core.LatencyMeasurement;
+import com.baqend.messaging.RMQLatencySender;
 import com.google.gson.Gson;
 
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
-import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 @ClientEndpoint
 public class WebSocketClient {
-    Session userSession = null;
+    public Session userSession = null;
+    private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
 
-    public WebSocketClient(URI endpointURI) {
+    public WebSocketClient(URI endpointURI) throws IOException, TimeoutException {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, endpointURI);
@@ -29,20 +31,23 @@ public class WebSocketClient {
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
         this.userSession = null;
+        rmqLatencySender.close();
         System.out.println("WS closed: " + reason.toString());
     }
 
     @OnMessage
     public void onMessage(String message) {
-        if (message.contains("\"type\":\"result\"")) {
-            LatencyMeasurement.getInstance().tock();
-            return;
-        }
-        //System.out.println(message);
         try {
+            if (message.contains("\"type\":\"result\"")) {
+                //LatencyMeasurement.getInstance().tock();
+                //rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
+                return;
+            }
+            //System.out.println(message);
             Gson gson = new Gson();
             QueryResult queryResult = gson.fromJson(message, QueryResult.class);
-            LatencyMeasurement.getInstance().tock(UUID.fromString(queryResult.getTransactionID()));
+            //LatencyMeasurement.getInstance().tock(UUID.fromString(queryResult.getTransactionID()));
+            rmqLatencySender.sendMessage("tock" + "," + 0 + "," + queryResult.getTransactionID() + "," + System.nanoTime());
         } catch (Exception e) {
             e.printStackTrace();
         }
