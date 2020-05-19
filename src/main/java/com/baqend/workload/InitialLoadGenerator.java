@@ -19,13 +19,13 @@ public class InitialLoadGenerator {
 
     private static LoadData generateInitialLoad() {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-        ArrayList<LoadDataSet> loadDataSets = new ArrayList<LoadDataSet>();
+        ArrayList<SingleDataSet> singleDataSets = new ArrayList<SingleDataSet>();
         for (int i = 1; i <= 100000; i++) {
-            LoadDataSet loadDataSet = new LoadDataSet(UUID.randomUUID(), randomDataGenerator.generateRandomDataset(i));
-            loadDataSets.add(loadDataSet);
+            SingleDataSet singleDataSet = new SingleDataSet(UUID.randomUUID(), randomDataGenerator.generateRandomDataset(i));
+            singleDataSets.add(singleDataSet);
         }
         LoadData loadData = new LoadData();
-        loadData.setLoad(loadDataSets);
+        loadData.setLoad(singleDataSets);
         return loadData;
     }
 }
