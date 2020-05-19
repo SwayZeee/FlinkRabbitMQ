@@ -17,7 +17,7 @@ public class Benchmark {
         Gson gson = new Gson();
 
         //ConfigObject configObject = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
-        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
+        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
         System.out.println("Configuration file loaded");
 
         Client client;
@@ -31,11 +31,7 @@ public class Benchmark {
             default:
                 throw new Exception("Invalid configuration.");
         }
-
-        Query query = new ExampleQuery();
-        QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
-        queryOrchestrator.registerQuery();
-
+        
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
         //loadGenerator.setup();
         //loadGenerator.warmUp();
