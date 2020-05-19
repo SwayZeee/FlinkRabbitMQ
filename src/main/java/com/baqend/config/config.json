@@ -1,8 +1,8 @@
 {
-  "clientToTest": 2,
+  "clientToTest": 1,
   "baqendWebsocketUri": "ws://localhost:8080/v1/events",
   "baqendHttpBaseUri": "http://localhost:8080/v1",
-  "throughput": 45000,
+  "throughput": 100,
   "duration": 60,
-  "waitingTime": 60000
+  "waitingTime": 1000
 }
