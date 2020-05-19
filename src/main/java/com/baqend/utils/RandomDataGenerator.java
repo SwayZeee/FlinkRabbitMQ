@@ -9,28 +9,28 @@ public class RandomDataGenerator {
 
     public HashMap<String, String> generateRandomDataset() {
         HashMap<String, String> data = new HashMap<String, String>();
-        data.put("fieldOne", Integer.toString(generateRandomInteger(1, 100)));
-        data.put("fieldTwo", Double.toString(generateRandomDouble(1, 100)));
+        data.put("fieldOne", Integer.toString(generateRandomInteger(1, 1000)));
+        data.put("fieldTwo", Double.toString(generateRandomDouble(1, 1000)));
         data.put("fieldThree", generateRandomString(6, true, false));
-        data.put("fieldFour", Integer.toString(generateRandomInteger(1, 1000)));
-        data.put("fieldFive", Double.toString(generateRandomDouble(1, 1000)));
+        data.put("fieldFour", Integer.toString(generateRandomInteger(1001, 10000)));
+        data.put("fieldFive", Double.toString(generateRandomDouble(1001, 10000)));
         data.put("fieldSix", generateRandomString(12, true, false));
-        data.put("fieldSeven", Integer.toString(generateRandomInteger(1, 100000)));
-        data.put("fieldEight", Double.toString(generateRandomDouble(1, 100000)));
+        data.put("fieldSeven", Integer.toString(generateRandomInteger(10001, 100000)));
+        data.put("fieldEight", Double.toString(generateRandomDouble(10001, 100000)));
         data.put("fieldNine", generateRandomString(18, true, false));
         return data;
     }
 
     public HashMap<String, String> generateRandomDataset(int i) {
         HashMap<String, String> data = new HashMap<String, String>();
-        data.put("fieldOne", Integer.toString(generateRandomInteger(1, 100)));
-        data.put("fieldTwo", Double.toString(generateRandomDouble(1, 100)));
+        data.put("fieldOne", Integer.toString(generateRandomInteger(1, 1000)));
+        data.put("fieldTwo", Double.toString(generateRandomDouble(1, 1000)));
         data.put("fieldThree", generateRandomString(6, true, false));
-        data.put("fieldFour", Integer.toString(generateRandomInteger(1, 1000)));
-        data.put("fieldFive", Double.toString(generateRandomDouble(1, 1000)));
+        data.put("fieldFour", Integer.toString(generateRandomInteger(1001, 10000)));
+        data.put("fieldFive", Double.toString(generateRandomDouble(1001, 10000)));
         data.put("fieldSix", generateRandomString(12, true, false));
-        data.put("fieldSeven", Integer.toString(generateRandomInteger(1, 100000)));
-        data.put("fieldEight", Double.toString(generateRandomDouble(1, 100000)));
+        data.put("fieldSeven", Integer.toString(generateRandomInteger(10001, 100000)));
+        data.put("fieldEight", Double.toString(generateRandomDouble(10001, 100000)));
         data.put("fieldNine", generateRandomString(18, true, false));
         data.put("number", Integer.toString(i));
         return data;
