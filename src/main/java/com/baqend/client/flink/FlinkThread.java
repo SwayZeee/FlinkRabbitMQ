@@ -1,7 +1,9 @@
 package com.baqend.client.flink;
 
+import com.baqend.client.flink.aggregator.LastDoubleValue;
+import com.baqend.client.flink.aggregator.LastIntegerValue;
 import com.baqend.client.flink.aggregator.LastStringValue;
-import com.baqend.core.LatencyMeasurement;
+import com.baqend.messaging.RMQLatencySender;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -17,12 +19,24 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-import java.util.UUID;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 public class FlinkThread extends Thread {
 
     private static final String EXCHANGE_NAME = "benchmark";
     private static final String QUEUE_NAME = "flinkTest";
+    private static RMQLatencySender rmqLatencySender = null;
+
+    static {
+        try {
+            rmqLatencySender = new RMQLatencySender();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
 
     public FlinkThread(String query) {
     }
@@ -31,11 +45,11 @@ public class FlinkThread extends Thread {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        tableEnv.registerFunction("LastStringValue", new LastStringValue());
 
-//        DataStream<String> dataStream = env
-//                .readTextFile("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\FlinkRabbitMQ\\src\\main\\java\\org\\example\\test.txt")
-//                .flatMap(new Splitter());
+        // register User-Defined Aggregate Functions (UDAGGs)
+        tableEnv.registerFunction("LastIntegerValue", new LastIntegerValue());
+        tableEnv.registerFunction("LastDoubleValue", new LastDoubleValue());
+        tableEnv.registerFunction("LastStringValue", new LastStringValue());
 
         final RMQConnectionConfig connectionConfig = new RMQConnectionConfig.Builder()
                 .setHost("localhost")
@@ -61,26 +75,14 @@ public class FlinkThread extends Thread {
                             true,
                             new EventMessageDeserializationSchema()));
 
-            tableEnv.createTemporaryView("myTable", rabbitMQStream, "id, name");
+            tableEnv.createTemporaryView("myTable", rabbitMQStream, "transactionID, id, fieldOne, fieldTwo, fieldThree, fieldFour, fieldFive, fieldSix, fieldSeven, fieldEight, fieldNine, number");
 
-            Table queryTable = tableEnv.sqlQuery("SELECT LastStringValue(id), name AS last_id FROM myTable GROUP BY name");
+            Table queryTable = tableEnv.sqlQuery("SELECT LastStringValue(transactionID), id, LastIntegerValue(fieldOne) AS fieldOne, LastDoubleValue(fieldTwo) AS fieldTwo, LastStringValue(fieldThree) as fieldThree FROM myTable WHERE number = 1 GROUP BY id");
 
-            // conversion of the queryTable to a retractStream
-            // indicating inserts with a true boolean flag
+            // conversion of queryTable to a retractStream (true) = insert, (false) = delete
             DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(queryTable, Row.class);
             retractStream.map(new Mapper());
-            //retractStream.print();
-
-//        TableSink sink = new CsvTableSink("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\flinkResults.txt", " ", 1, FileSystem.WriteMode.OVERWRITE);
-//        String[] fieldNames = {"Message"};
-//        TypeInformation[] fieldTypes = {Types.STRING};
-//        tableEnv.registerTableSink("csvSinkTable", fieldNames, fieldTypes, sink);
-//        queryTable.insertInto("csvSinkTable");
-
-//        dataStream.addSink(new RMQSink<String>(
-//                connectionConfig,
-//                "queueName",
-//                new SimpleStringSchema()));
+            // retractStream.print();
 
             try {
                 env.execute("Test Job");
@@ -90,24 +92,19 @@ public class FlinkThread extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public static class Mapper implements MapFunction<Tuple2<Boolean, Row>, String> {
         @Override
         public String map(Tuple2<Boolean, Row> booleanRowTuple2) {
-            LatencyMeasurement.getInstance().tock(UUID.fromString(booleanRowTuple2.f1.toString().substring(0, 36)));
+            //LatencyMeasurement.getInstance().tock(UUID.fromString(booleanRowTuple2.f1.toString().substring(0, 36)));
+            try {
+                //rmqLatencySender.sendMessage(booleanRowTuple2.f1.toString().substring(0, 36)+","+System.nanoTime());
+                rmqLatencySender.sendMessage("tock" + "," + 0 + "," + booleanRowTuple2.f1.toString().substring(0, 36) + "," + System.nanoTime());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return booleanRowTuple2.f1.toString();
         }
     }
-
-//    public static class Splitter implements FlatMapFunction<String, String> {
-//        @Override
-//        public void flatMap(String s, Collector<String> collector) throws Exception {
-//            for (String word : s.split("")) {
-//                collector.collect(new String(word));
-//            }
-//            collector.collect(new String(s));
-//        }
-//    }
 }
