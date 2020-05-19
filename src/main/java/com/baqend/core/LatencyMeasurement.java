@@ -178,7 +178,7 @@ public class LatencyMeasurement {
     }
 
     public static String getQuantitativeCorrectness() {
-        int correctness = ticks.size() / tocks.size() * 100;
+        double correctness = (double) tocks.size() / (double) ticks.size() * 100.0;
         return tocks.size() + "/" + ticks.size() + " (" + correctness + " %)";
     }
 
