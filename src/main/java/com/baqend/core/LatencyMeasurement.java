@@ -131,7 +131,7 @@ public class LatencyMeasurement {
 
     public static Long calculateMedian() {
         AtomicLong index = new AtomicLong();
-        index.set(0);
+        index.set(1);
         // calculating all latencies
         Map<UUID, Long> latencies = calculateAllLatencies();
         // sorting the calculated latencies
@@ -141,17 +141,17 @@ public class LatencyMeasurement {
         // map sorted latencies to an indexed map
         Map<Long, Long> indexedSortedLatencies = new HashMap<>();
         sortedLatencies.forEach((k, v) -> {
-            indexedSortedLatencies.put(index.get(), calculateLatency(k));
+            indexedSortedLatencies.put(index.get(), v);
             index.set(index.get() + 1);
         });
         // returning the median
         long medianIndex;
         if (indexedSortedLatencies.size() % 2 == 1) {
-            medianIndex = (latencies.size() - 1) / 2;
+            medianIndex = (latencies.size() + 1) / 2;
             return indexedSortedLatencies.get(medianIndex);
         }
         medianIndex = (latencies.size()) / 2;
-        return (indexedSortedLatencies.get(medianIndex - 1) + indexedSortedLatencies.get(medianIndex)) / 2;
+        return (indexedSortedLatencies.get(medianIndex) + indexedSortedLatencies.get(medianIndex + 1)) / 2;
     }
 
     public static Long getMaximumLatency() {
@@ -184,7 +184,7 @@ public class LatencyMeasurement {
 
     public static Long calculateNthPercentile(double n) {
         AtomicLong index = new AtomicLong();
-        index.set(0);
+        index.set(1);
         // calculating all latencies
         Map<UUID, Long> latencies = new HashMap<>();
         tocks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
@@ -195,7 +195,7 @@ public class LatencyMeasurement {
         // map sorted latencies to an indexed map
         Map<Long, Long> indexedSortedLatencies = new HashMap<>();
         sortedLatencies.forEach((k, v) -> {
-            indexedSortedLatencies.put(index.get(), calculateLatency(k));
+            indexedSortedLatencies.put(index.get(), v);
             index.set(index.get() + 1);
         });
         return indexedSortedLatencies.get(Double.valueOf(Math.ceil(indexedSortedLatencies.size() * n)).longValue());
