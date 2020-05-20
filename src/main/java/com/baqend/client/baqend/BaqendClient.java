@@ -36,10 +36,18 @@ public class BaqendClient implements Client {
         System.out.println("BaqendClient HttpBaseURI: " + configObject.baqendHttpBaseUri);
     }
 
-    public void doQuery(String query) {
+    public void subscribeQuery(String query) {
         String queryString = baqendQueryBuilder.translateQuery(webSocketClient.userSession.toString(), query);
         System.out.println("Performing Query: " + queryString);
         webSocketClient.sendMessage(queryString);
+    }
+
+    public void unsubscribeQuery() {
+        try {
+            webSocketClient.userSession.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setup(String table, LoadData loadData) {
@@ -75,11 +83,6 @@ public class BaqendClient implements Client {
 
     @Override
     public void cleanUp(String table) {
-        try {
-            webSocketClient.userSession.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         HttpClient.getInstance().stop();
 //        MongoClient mongoClient = new MongoClient();
 //        MongoDatabase db = mongoClient.getDatabase("local");

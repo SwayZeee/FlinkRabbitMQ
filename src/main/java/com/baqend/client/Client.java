@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public interface Client {
-    void doQuery(String query);
+    void subscribeQuery(String query);
+
+    void unsubscribeQuery();
 
     void setup(String table, LoadData loadData);
 

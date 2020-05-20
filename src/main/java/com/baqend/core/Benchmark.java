@@ -34,12 +34,14 @@ public class Benchmark {
 
         Query query = new ExampleQuery();
         QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
-        queryOrchestrator.registerQuery();
+        queryOrchestrator.subscribeQuery();
 
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
         //loadGenerator.setup();
         //loadGenerator.warmUp();
         loadGenerator.start();
         loadGenerator.stop();
+
+        queryOrchestrator.unsubscribeQuery();
     }
 }

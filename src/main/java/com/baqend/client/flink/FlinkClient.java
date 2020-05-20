@@ -18,7 +18,7 @@ public class FlinkClient implements Client {
     public FlinkClient(ConfigObject configObject) throws IOException, TimeoutException {
     }
 
-    public void doQuery(String query) {
+    public void subscribeQuery(String query) {
 //        FlinkThread flinkThread = new FlinkThread(query);
 //        flinkThread.start();
 //        // time delay for starting flink
@@ -27,6 +27,9 @@ public class FlinkClient implements Client {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    public void unsubscribeQuery() {
     }
 
     public void setup(String table, LoadData loadData) {

@@ -13,10 +13,14 @@ public class QueryOrchestrator {
         this.client = client;
     }
 
-    public void registerQuery() {
+    public void subscribeQuery() {
         //UUID uuid = UUID.randomUUID();
         //LatencyMeasurement.getInstance().tick(uuid);
         //LatencyMeasurement.getInstance().setInitialTick(uuid, System.nanoTime());
-        client.doQuery(query.getQuery());
+        client.subscribeQuery(query.getQuery());
+    }
+
+    public void unsubscribeQuery() {
+        client.unsubscribeQuery();
     }
 }
