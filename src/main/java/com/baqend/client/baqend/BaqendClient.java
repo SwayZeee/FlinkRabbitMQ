@@ -2,7 +2,7 @@ package com.baqend.client.baqend;
 
 import com.baqend.config.ConfigObject;
 import com.baqend.client.Client;
-import com.baqend.utils.HttpClient;
+import com.baqend.utils.AHClient;
 import com.baqend.workload.LoadData;
 import com.baqend.workload.SingleDataSet;
 
@@ -52,11 +52,11 @@ public class BaqendClient implements Client {
 
     public void setup(String table, LoadData loadData) {
         for (SingleDataSet singleDataSet : loadData.getLoad()) {
-            HttpClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
+            AHClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
                     baqendRequestBuilder.composeRequestString(table, singleDataSet.getUuid().toString(), singleDataSet.getData())
             );
         }
-        HttpClient.getInstance().stop();
+        AHClient.getInstance().stop();
     }
 
     public void warmUp() {
@@ -64,26 +64,26 @@ public class BaqendClient implements Client {
 
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        HttpClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
+        AHClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        HttpClient.getInstance().put(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key,
+        AHClient.getInstance().put(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void delete(String table, String key, UUID transactionID) {
-        HttpClient.getInstance().delete(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
+        AHClient.getInstance().delete(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
     }
 
     @Override
     public void cleanUp(String table) {
-        HttpClient.getInstance().stop();
+        AHClient.getInstance().stop();
 //        MongoClient mongoClient = new MongoClient();
 //        MongoDatabase db = mongoClient.getDatabase("local");
 //        MongoCollection<Document> collection = db.getCollection(table);
