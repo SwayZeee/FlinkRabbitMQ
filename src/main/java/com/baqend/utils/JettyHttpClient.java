@@ -3,14 +3,14 @@ package com.baqend.utils;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
-public class HttpClient {
+public class JettyHttpClient {
 
-    private static HttpClient singleton = null;
+    private static JettyHttpClient singleton = null;
     private final static org.eclipse.jetty.client.HttpClient httpClient = new org.eclipse.jetty.client.HttpClient();
 
-    public static synchronized HttpClient getInstance() {
+    public static synchronized JettyHttpClient getInstance() {
         if (singleton == null) {
-            singleton = new HttpClient();
+            singleton = new JettyHttpClient();
             try {
                 httpClient.start();
             } catch (Exception exception) {
