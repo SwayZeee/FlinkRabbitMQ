@@ -32,16 +32,20 @@ public class Benchmark {
                 throw new Exception("Invalid configuration.");
         }
 
+        LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
+        //loadGenerator.setup();
+        //loadGenerator.warmUp();
+
+        LatencyMeasurement latencyMeasurement = new LatencyMeasurement();
+
         Query query = new ExampleQuery();
         QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
         queryOrchestrator.subscribeQuery();
 
-        LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
-        //loadGenerator.setup();
-        //loadGenerator.warmUp();
         loadGenerator.start();
         loadGenerator.stop();
 
         queryOrchestrator.unsubscribeQuery();
+        latencyMeasurement.doCalculationsAndExport();
     }
 }
