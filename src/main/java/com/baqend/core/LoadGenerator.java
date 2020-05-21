@@ -26,20 +26,17 @@ public class LoadGenerator {
         this.configObject = configObject;
     }
 
-    public void setup() throws FileNotFoundException {
-        System.out.println("Performing setup");
-        double startTime = System.currentTimeMillis();
+    public void load() throws FileNotFoundException {
+        System.out.println("[LoadGenerator] - Performing Load");
         Gson gson = new Gson();
-        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
-        client.setup("Test", loadData);
-        double stopTime = System.currentTimeMillis();
-        double executionTime = stopTime - startTime;
-        System.out.print("Setup completed (" + executionTime + "ms) - loaded " + loadData.getLoad().size() + " datasets to database");
+        LoadData loadData = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
+        System.out.println("[LoadGenerator] - Load done");
     }
 
     public void warmUp() {
-        System.out.println("Performing warm up");
-        client.warmUp();
+        System.out.println("[LoadGenerator] - Performing WarmUp");
+        //
+        System.out.println("[LoadGenerator] - WarmUp done");
     }
 
     public void start() {
@@ -48,19 +45,17 @@ public class LoadGenerator {
         int rounds = configObject.duration;
         int throughput = configObject.throughput;
 
-        System.out.println("Benchmark started - Throughput: " + throughput + " ops/s");
+        System.out.println("[LoadGenerator] - Performing Benchmark (" + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
         while (x <= rounds * throughput) {
-            System.out.print("\rBenchmark in progess: " + (int) (x / (rounds * throughput) * 100) + " %");
+            System.out.print("\r[LoadGenerator] - Benchmark in progess " + (int) (x / (rounds * throughput) * 100) + " %");
             rateLimiter.acquire();
             step((int) x);
             x++;
         }
-
         double stopTime = System.currentTimeMillis();
         double executionTime = stopTime - startTime;
-        System.out.println();
-        System.out.println("Benchmark done - Execution Time: " + executionTime + " ms");
+        System.out.println("\r[LoadGenerator] - Benchmark done (" + executionTime + " ms)");
         try {
             Thread.sleep(configObject.waitingTime);
         } catch (
@@ -72,24 +67,24 @@ public class LoadGenerator {
     public void step(int count) {
         UUID transactionID = UUID.randomUUID();
         if (count % (configObject.throughput / 100) == 0) {
-            try {
-                rmqLatencySender.sendMessage("tick" + "," + 0 + "," + transactionID.toString() + "," + System.nanoTime());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            rmqLatencySender.sendMessage("tick" + "," + 0 + "," + transactionID.toString() + "," + System.nanoTime());
             client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(1), transactionID);
             //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(1), transactionID);
             return;
         }
         client.insert("Test", transactionID.toString(), randomDataGenerator.generateRandomDataset(0), transactionID);
         //client.update("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", randomDataGenerator.generateRandomDataset(0), transactionID);
-        //client.delete("Test", "7e1df1e5-c9fb-457a-9efe-48a543a4dd2e", transactionID);
+    }
+
+    public void cleanUp() {
+        System.out.println("[LoadGenerator] - Performing CleanUp");
+        client.cleanUp("Test");
+        System.out.println("[LoadGenerator] - CleanUp done");
     }
 
     public void stop() {
-        client.cleanUp("Test");
+        client.close();
         rmqLatencySender.close();
+        System.out.println("[LoadGenerator] - Stopped");
     }
-
-
 }
