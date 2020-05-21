@@ -1,6 +1,8 @@
 package com.baqend.core;
 
+import com.baqend.config.ConfigObject;
 import com.baqend.utils.JsonExporter;
+import com.baqend.utils.ResultObject;
 import com.rabbitmq.client.*;
 
 import java.io.IOException;
@@ -17,15 +19,19 @@ import static java.util.stream.Collectors.toMap;
 
 public class LatencyMeasurement {
 
-    private static final String EXCHANGE_NAME = "latencies";
-    private static Connection connection;
-    private static Channel channel;
+    private final String EXCHANGE_NAME = "latencies";
+    private Connection connection;
+    private Channel channel;
 
-    private static final Map<UUID, Long> ticks = new ConcurrentHashMap<>();
-    private static final Map<UUID, Long> tocks = new ConcurrentHashMap<>();
-    private static UUID initialTick;
+    private static Map<UUID, Long> ticks = new ConcurrentHashMap<>();
+    private static Map<UUID, Long> tocks = new ConcurrentHashMap<>();
+    private UUID initialTick;
 
-    public LatencyMeasurement() throws IOException, TimeoutException {
+    private ConfigObject configObject;
+
+    public LatencyMeasurement(ConfigObject configObject) throws IOException, TimeoutException {
+        this.configObject = configObject;
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
@@ -35,7 +41,7 @@ public class LatencyMeasurement {
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, EXCHANGE_NAME, "");
 
-        System.out.println("Exchange: " + EXCHANGE_NAME + " Queue: " + queueName);
+        System.out.println("[LatencyMeasurement] - Exchange: " + EXCHANGE_NAME + ", Queue: " + queueName);
 
         Consumer consumer = new Consumer() {
             @Override
@@ -87,56 +93,63 @@ public class LatencyMeasurement {
         channel.basicConsume(queueName, true, consumer);
     }
 
-    public void setInitialTick(UUID id, long timeStamp) {
+    private void setInitialTick(UUID id, long timeStamp) {
         initialTick = id;
         ticks.put(id, timeStamp);
     }
 
-    public void tick(UUID id, long timeStamp) {
+    private void tick(UUID id, long timeStamp) {
         ticks.put(id, timeStamp);
     }
 
-    public void tock(long timeStamp) {
+    private void tock(long timeStamp) {
         tocks.put(initialTick, timeStamp);
     }
 
-    public void tock(UUID id, long timeStamp) {
+    private void tock(UUID id, long timeStamp) {
         tocks.put(id, timeStamp);
     }
 
-    public long calculateLatency(UUID uuid) {
+    private long calculateLatency(UUID uuid) {
         long start = ticks.get(uuid);
         long end = tocks.get(uuid);
         return end - start;
     }
 
-    public HashMap<UUID, Long> calculateAllLatencies() {
+    private HashMap<UUID, Long> calculateAllLatencies() {
         HashMap<UUID, Long> latencies = new HashMap<>();
         tocks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
         return latencies;
     }
 
-    public long calculateAverage() {
-        AtomicLong sum = new AtomicLong();
-        tocks.forEach((k, v) -> sum.set(sum.get() + calculateLatency(k)));
-        return sum.get() / ticks.size();
+    private HashMap<UUID, Long> sortLatencies(HashMap<UUID, Long> latencies) {
+        return latencies.entrySet().stream()
+                .sorted(comparingByValue()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
     }
 
-    public Long calculateMedian() {
+    private HashMap<Long, Long> indexLatencies(HashMap<UUID, Long> latencies) {
         AtomicLong index = new AtomicLong();
         index.set(1);
-        // calculating all latencies
-        Map<UUID, Long> latencies = calculateAllLatencies();
-        // sorting the calculated latencies
-        Map<UUID, Long> sortedLatencies =
-                latencies.entrySet().stream()
-                        .sorted(comparingByValue()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-        // map sorted latencies to an indexed map
-        Map<Long, Long> indexedSortedLatencies = new HashMap<>();
-        sortedLatencies.forEach((k, v) -> {
-            indexedSortedLatencies.put(index.get(), v);
+        HashMap<Long, Long> indexedLatencies = new HashMap<>();
+        latencies.forEach((k, v) -> {
+            indexedLatencies.put(index.get(), v);
             index.set(index.get() + 1);
         });
+        return indexedLatencies;
+    }
+
+    private HashMap<Long, Long> sortAndIndexLatencies(HashMap<UUID, Long> latencies) {
+        return indexLatencies(sortLatencies(latencies));
+    }
+
+    private long calculateAverage(HashMap<UUID, Long> latencies) {
+        AtomicLong sum = new AtomicLong();
+        latencies.forEach((k, v) -> sum.set(sum.get() + v));
+        return sum.get() / latencies.size();
+    }
+
+    private long calculateMedian(HashMap<UUID, Long> latencies) {
+        HashMap<Long, Long> indexedSortedLatencies = sortAndIndexLatencies(latencies);
         // returning the median
         long medianIndex;
         if (indexedSortedLatencies.size() % 2 == 1) {
@@ -147,19 +160,7 @@ public class LatencyMeasurement {
         return (indexedSortedLatencies.get(medianIndex) + indexedSortedLatencies.get(medianIndex + 1)) / 2;
     }
 
-    public Long getMaximumLatency() {
-        Map<UUID, Long> latencies = calculateAllLatencies();
-        AtomicLong maximum = new AtomicLong();
-        latencies.forEach((k, v) -> {
-            if (v > maximum.get()) {
-                maximum.set(v);
-            }
-        });
-        return maximum.get();
-    }
-
-    public Long getMinimumLatency() {
-        Map<UUID, Long> latencies = calculateAllLatencies();
+    private long getMinimumLatency(HashMap<UUID, Long> latencies) {
         AtomicLong minimum = new AtomicLong();
         minimum.set(1000000000);
         latencies.forEach((k, v) -> {
@@ -170,60 +171,79 @@ public class LatencyMeasurement {
         return minimum.get();
     }
 
-    public String getQuantitativeCorrectness() {
-        double correctness = (double) tocks.size() / (double) ticks.size() * 100.0;
-        return tocks.size() + "/" + ticks.size() + " (" + correctness + " %)";
+    private long getMaximumLatency(HashMap<UUID, Long> latencies) {
+        AtomicLong maximum = new AtomicLong();
+        latencies.forEach((k, v) -> {
+            if (v > maximum.get()) {
+                maximum.set(v);
+            }
+        });
+        return maximum.get();
     }
 
-    public Long calculateNthPercentile(double n) {
-        AtomicLong index = new AtomicLong();
-        index.set(1);
-        // calculating all latencies
-        Map<UUID, Long> latencies = new HashMap<>();
-        tocks.forEach((k, v) -> latencies.put(k, calculateLatency(k)));
-        // sorting the calculated latencies
-        Map<UUID, Long> sortedLatencies =
-                latencies.entrySet().stream()
-                        .sorted(comparingByValue()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-        // map sorted latencies to an indexed map
-        Map<Long, Long> indexedSortedLatencies = new HashMap<>();
-        sortedLatencies.forEach((k, v) -> {
-            indexedSortedLatencies.put(index.get(), v);
-            index.set(index.get() + 1);
-        });
+    private double getQuantitativeCorrectness() {
+        return (double) tocks.size() / (double) ticks.size() * 100.0;
+    }
+
+    private Long calculateNthPercentile(HashMap<UUID, Long> latencies, double n) {
+        HashMap<Long, Long> indexedSortedLatencies = sortAndIndexLatencies(latencies);
         return indexedSortedLatencies.get(Double.valueOf(Math.ceil(indexedSortedLatencies.size() * n)).longValue());
     }
 
     public void doCalculationsAndExport() {
-        System.out.println("Quantitative Correctness: " + getQuantitativeCorrectness());
-        System.out.println("Average: " + calculateAverage() + " ns");
-        System.out.println("Median: " + calculateMedian() + " ns");
-        System.out.println("Maximum: " + getMaximumLatency() + " ns");
-        System.out.println("Minimum: " + getMinimumLatency() + " ns");
-        System.out.println("90th Percentile: " + calculateNthPercentile(0.9) + " ns");
-        System.out.println("95th Percentile: " + calculateNthPercentile(0.95) + " ns");
-        System.out.println("99th Percentile: " + calculateNthPercentile(0.99) + " ns");
+        System.out.println("[LatencyMeasurement] - Performing Calculations and Export");
+        System.out.println();
+
         HashMap<UUID, Long> latencies = calculateAllLatencies();
+        double quantitativeCorrectness = getQuantitativeCorrectness();
+        System.out.println("Quantitative Correctness: " + quantitativeCorrectness);
+        long average = calculateAverage(latencies);
+        System.out.println("Average: " + calculateAverage(latencies) + " ns");
+        long median = calculateMedian(latencies);
+        System.out.println("Median: " + median + " ns");
+        long minimum = getMinimumLatency(latencies);
+        System.out.println("Minimum: " + minimum + " ns");
+        long maximum = getMaximumLatency(latencies);
+        System.out.println("Maximum: " + maximum + " ns");
+        long ninetiethPercentile = calculateNthPercentile(latencies, 0.9);
+        System.out.println("90th Percentile: " + ninetiethPercentile + " ns");
+        long ninetyFifthPercentile = calculateNthPercentile(latencies, 0.95);
+        System.out.println("95th Percentile: " + ninetyFifthPercentile + " ns");
+        long ninetyNinthPercentile = calculateNthPercentile(latencies, 0.99);
+        System.out.println("99th Percentile: " + ninetyNinthPercentile + " ns");
+        System.out.println();
+
+        ResultObject resultObject = new ResultObject(configObject,
+                ticks.size(),
+                tocks.size(),
+                quantitativeCorrectness,
+                average,
+                median,
+                minimum,
+                maximum,
+                ninetiethPercentile,
+                ninetyFifthPercentile,
+                ninetyNinthPercentile,
+                calculateAllLatencies()
+        );
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportLatenciesToJsonFile(latencies);
+            jsonExporter.exportLatenciesToJsonFile(resultObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        close();
+        System.out.println("[LatencyMeasurement] - Calculations and Export done");
     }
 
-    public void closeChannel() {
+    private void closeChannel() {
         try {
             channel.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
     }
 
-    public void closeConnection() {
+    private void closeConnection() {
         try {
             connection.close();
         } catch (IOException e) {
@@ -231,8 +251,9 @@ public class LatencyMeasurement {
         }
     }
 
-    public void close() {
+    public void stop() {
         closeChannel();
         closeConnection();
+        System.out.println("[LatencyMeasurement] - Stopped");
     }
 }
