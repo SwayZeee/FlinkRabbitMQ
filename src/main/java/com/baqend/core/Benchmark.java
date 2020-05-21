@@ -11,41 +11,56 @@ import com.google.gson.Gson;
 import java.io.FileReader;
 
 public class Benchmark {
+
     public static void main(String[] args) throws Exception {
-        System.out.println("+++ Benchmark started +++");
+        System.out.println();
+        System.out.println(" ___  ___  ___  ___       ___  ___       ___                 _                     _   ");
+        System.out.println("| . \\|_ _|| . \\| . > ___ / __>| . \\ ___ | . > ___ ._ _  ___ | |_ ._ _ _  ___  _ _ | |__");
+        System.out.println("|   / | | | | || . \\|___|\\__ \\|  _/|___|| . \\/ ._>| ' |/ | '| . || ' ' |<_> || '_>| / /");
+        System.out.println("|_\\_\\ |_| |___/|___/     <___/|_|       |___/\\___.|_|_|\\_|_.|_|_||_|_|_|<___||_|  |_\\_\\");
+        System.out.println();
 
         Gson gson = new Gson();
-
-        //ConfigObject configObject = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
-        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
-        System.out.println("Configuration file loaded");
+        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
 
         Client client;
         switch (configObject.clientToTest) {
             case 1:
-                client = new BaqendClient(configObject);
+                client = new BaqendClient();
                 break;
             case 2:
-                client = new FlinkClient(configObject);
+                client = new FlinkClient();
                 break;
             default:
                 throw new Exception("Invalid configuration.");
         }
 
         LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
-        //loadGenerator.setup();
-        //loadGenerator.warmUp();
+        if (configObject.isPerformingLoad) {
+            loadGenerator.load();
+        }
+        if (configObject.isPerformingWarmUp) {
+            loadGenerator.warmUp();
+        }
 
-        LatencyMeasurement latencyMeasurement = new LatencyMeasurement();
+        LatencyMeasurement latencyMeasurement = new LatencyMeasurement(configObject);
 
         Query query = new ExampleQuery();
-        QueryOrchestrator queryOrchestrator = new QueryOrchestrator(query, client);
-        queryOrchestrator.subscribeQuery();
+        QueryOrchestrator queryOrchestrator = new QueryOrchestrator(client);
+        queryOrchestrator.doQuerySubscriptions(1, query);
 
         loadGenerator.start();
-        loadGenerator.stop();
 
-        queryOrchestrator.unsubscribeQuery();
+        queryOrchestrator.undoQuerySubscriptions();
+
+        if (configObject.isPerformingCleanUp) {
+            loadGenerator.cleanUp();
+        }
+
         latencyMeasurement.doCalculationsAndExport();
+
+        queryOrchestrator.stop();
+        loadGenerator.stop();
+        latencyMeasurement.stop();
     }
 }
