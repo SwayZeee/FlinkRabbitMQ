@@ -20,9 +20,12 @@ public class RMQMessageSender {
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
     }
 
-    public void sendMessage(String message) throws IOException {
-        channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes(StandardCharsets.UTF_8));
-        //System.out.println("[x] Sent '" + message + "'");
+    public void sendMessage(String message) {
+        try {
+            channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void closeChannel() {
