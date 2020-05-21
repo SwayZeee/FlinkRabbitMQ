@@ -5,9 +5,9 @@ public class BaqendQueryBuilder {
     public BaqendQueryBuilder() {
     }
 
-    public String translateQuery(String userSession, String query) {
+    public String composeSubscribeQueryString(String userSession, String query) {
         // TODO: do the query mapping from SQL to baqend query string
-        String queryString = "{\n" +
+        return "{\n" +
                 "  \"id\": \"" + userSession + "\",\n" +
                 "  \"type\": \"subscribe\",\n" +
                 "  \"token\": null,\n" +
@@ -36,7 +36,13 @@ public class BaqendQueryBuilder {
                 "    \"all\"\n" +
                 "  ]\n}");
 */
-        return queryString;
+    }
+
+    public String composeUnsubscribeQueryString(String userSession) {
+        return "{\n" +
+                "  \"id\": \"" + userSession + "\",\n" +
+                "  \"type\": \"unsubscribe\"\n" +
+                "  }";
     }
 }
 

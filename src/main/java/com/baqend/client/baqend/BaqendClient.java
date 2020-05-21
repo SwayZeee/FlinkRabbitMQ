@@ -1,10 +1,11 @@
 package com.baqend.client.baqend;
 
-import com.baqend.config.ConfigObject;
 import com.baqend.client.Client;
 import com.baqend.utils.AHClient;
-import com.baqend.workload.LoadData;
-import com.baqend.workload.SingleDataSet;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,78 +16,64 @@ import java.util.concurrent.TimeoutException;
 
 public class BaqendClient implements Client {
 
-    private ConfigObject configObject;
-    private WebSocketClient webSocketClient;
-    private BaqendQueryBuilder baqendQueryBuilder;
-    private BaqendRequestBuilder baqendRequestBuilder;
+    private final String BAQEND_WEBSOCKET_URI = "ws://localhost:8080/v1/events";
+    private final String BAQEND_HTTP_BASE_URI = "http://localhost:8080/v1";
 
-    public BaqendClient(ConfigObject configObject) throws URISyntaxException {
-        this.configObject = configObject;
+    private final BaqendQueryBuilder baqendQueryBuilder = new BaqendQueryBuilder();
+    private final BaqendRequestBuilder baqendRequestBuilder = new BaqendRequestBuilder();
+
+    private BaqendWebSocketClient baqendWebSocketClient;
+
+    public BaqendClient() {
         try {
-            webSocketClient = new WebSocketClient(new URI(configObject.baqendWebsocketUri));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
-        baqendQueryBuilder = new BaqendQueryBuilder();
-        baqendRequestBuilder = new BaqendRequestBuilder();
-
-        System.out.println("BaqendClient WebsocketURI: " + configObject.baqendWebsocketUri);
-        System.out.println("BaqendClient HttpBaseURI: " + configObject.baqendHttpBaseUri);
-    }
-
-    public void subscribeQuery(String query) {
-        String queryString = baqendQueryBuilder.translateQuery(webSocketClient.userSession.toString(), query);
-        System.out.println("Performing Query: " + queryString);
-        webSocketClient.sendMessage(queryString);
-    }
-
-    public void unsubscribeQuery() {
-        try {
-            webSocketClient.userSession.close();
-        } catch (IOException e) {
+            baqendWebSocketClient = new BaqendWebSocketClient(new URI(BAQEND_WEBSOCKET_URI));
+        } catch (IOException | TimeoutException | URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
-    public void setup(String table, LoadData loadData) {
-        for (SingleDataSet singleDataSet : loadData.getLoad()) {
-            AHClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
-                    baqendRequestBuilder.composeRequestString(table, singleDataSet.getUuid().toString(), singleDataSet.getData())
-            );
-        }
-        AHClient.getInstance().stop();
+    @Override
+    public void subscribeQuery(UUID queryID, String query) {
+        String queryString = baqendQueryBuilder.composeSubscribeQueryString(queryID.toString(), query);
+        baqendWebSocketClient.sendMessage(queryString);
     }
 
-    public void warmUp() {
+    @Override
+    public void unsubscribeQuery(UUID queryID) {
+        String queryString = baqendQueryBuilder.composeUnsubscribeQueryString(queryID.toString());
+        baqendWebSocketClient.sendMessage(queryString);
     }
 
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        AHClient.getInstance().post(configObject.baqendHttpBaseUri + "/db/" + table,
+        AHClient.getInstance().post(BAQEND_HTTP_BASE_URI + "/db/" + table,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        AHClient.getInstance().put(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key,
+        AHClient.getInstance().put(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void delete(String table, String key, UUID transactionID) {
-        AHClient.getInstance().delete(configObject.baqendHttpBaseUri + "/db/" + table + "/" + key);
+        AHClient.getInstance().delete(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key);
     }
 
     @Override
     public void cleanUp(String table) {
+        MongoClient mongoClient = new MongoClient();
+        MongoDatabase db = mongoClient.getDatabase("local");
+        MongoCollection<Document> collection = db.getCollection(table);
+        collection.drop();
+    }
+
+    @Override
+    public void close() {
+        baqendWebSocketClient.close();
         AHClient.getInstance().stop();
-//        MongoClient mongoClient = new MongoClient();
-//        MongoDatabase db = mongoClient.getDatabase("local");
-//        MongoCollection<Document> collection = db.getCollection(table);
-//        collection.drop();
     }
 }
