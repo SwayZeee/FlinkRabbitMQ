@@ -40,7 +40,7 @@ public class WebSocketClient {
         try {
             if (message.contains("\"type\":\"result\"")) {
                 //LatencyMeasurement.getInstance().tock();
-                //rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
+                rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
                 return;
             }
             //System.out.println(message);
