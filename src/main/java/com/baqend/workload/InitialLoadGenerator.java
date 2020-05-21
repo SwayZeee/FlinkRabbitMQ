@@ -20,7 +20,7 @@ public class InitialLoadGenerator {
     private static LoadData generateInitialLoad() {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         ArrayList<SingleDataSet> singleDataSets = new ArrayList<SingleDataSet>();
-        for (int i = 1; i <= 100000; i++) {
+        for (int i = 1; i <= 10000; i++) {
             SingleDataSet singleDataSet = new SingleDataSet(UUID.randomUUID(), randomDataGenerator.generateRandomDataset(i));
             singleDataSets.add(singleDataSet);
         }
