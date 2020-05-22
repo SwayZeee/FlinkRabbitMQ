@@ -1,6 +1,9 @@
 package com.baqend.client.baqend;
 
 import com.baqend.client.Client;
+import com.baqend.client.baqend.helper.BaqendQueryBuilder;
+import com.baqend.client.baqend.helper.BaqendRequestBuilder;
+import com.baqend.client.baqend.helper.BaqendWebSocketClient;
 import com.baqend.utils.AHClient;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
