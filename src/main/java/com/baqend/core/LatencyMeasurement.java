@@ -194,6 +194,9 @@ public class LatencyMeasurement {
         System.out.println("[LatencyMeasurement] - Performing Calculations and Export");
         System.out.println();
 
+        System.out.println(ticks.size());
+        System.out.println(tocks.size());
+
         HashMap<UUID, Long> latencies = calculateAllLatencies();
         double quantitativeCorrectness = getQuantitativeCorrectness();
         System.out.println("Quantitative Correctness: " + quantitativeCorrectness);

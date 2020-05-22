@@ -3,6 +3,7 @@ package com.baqend.utils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomDataGenerator {
