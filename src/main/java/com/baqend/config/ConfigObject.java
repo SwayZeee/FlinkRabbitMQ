@@ -8,4 +8,6 @@ public class ConfigObject {
     public boolean isPerformingLoad;
     public boolean isPerformingWarmUp;
     public boolean isPerformingCleanUp;
+    public int insertProportion;
+    public int updateProportion;
 }

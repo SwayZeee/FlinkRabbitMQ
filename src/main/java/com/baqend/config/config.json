@@ -1,9 +1,11 @@
 {
   "clientToTest": 1,
-  "throughput": 1000,
+  "throughput": 100,
   "duration": 60,
   "waitingTime": 5000,
   "isPerformingLoad": true,
-  "isPerformingWarmUp": true,
-  "isPerformingCleanUp": true
+  "isPerformingWarmUp": false,
+  "isPerformingCleanUp": false,
+  "insertProportion": 0,
+  "updateProportion": 100
 }
