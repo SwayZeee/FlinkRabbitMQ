@@ -1,4 +1,4 @@
-package com.baqend.client.baqend;
+package com.baqend.client.baqend.helper;
 
 public class BaqendQueryBuilder {
 
@@ -13,7 +13,7 @@ public class BaqendQueryBuilder {
                 "  \"token\": null,\n" +
                 "  \"initial\": true,\n" +
                 "  \"bucket\": \"Test\",\n" +
-                "  \"query\": \"{\\\"number\\\": 1}\",\n" +
+                "  \"query\": \"{\\\"fieldOne\\\": 1}\",\n" +
                 "  \"operations\": [\n" +
                 "    \"any\"\n" +
                 "  ],\n" +

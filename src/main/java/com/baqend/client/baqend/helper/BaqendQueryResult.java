@@ -1,17 +1,17 @@
-package com.baqend.client.baqend;
+package com.baqend.client.baqend.helper;
 
 import java.util.Date;
 import java.util.UUID;
 
-public class QueryResult {
+public class BaqendQueryResult {
     private UUID id;
     private Date date;
     private String match;
     private String matchType;
     private String operation;
-    private QueryResultData data;
+    private BaqendQueryResultData data;
 
-    public QueryResult(UUID id, Date date, String match, String matchType, String operation, QueryResultData data) {
+    public BaqendQueryResult(UUID id, Date date, String match, String matchType, String operation, BaqendQueryResultData data) {
         this.id = id;
         this.date = date;
         this.match = match;
@@ -40,7 +40,7 @@ public class QueryResult {
         return operation;
     }
 
-    public QueryResultData getData() {
+    public BaqendQueryResultData getData() {
         return data;
     }
 }

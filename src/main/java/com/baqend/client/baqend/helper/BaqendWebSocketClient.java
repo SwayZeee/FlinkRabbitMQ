@@ -1,4 +1,4 @@
-package com.baqend.client.baqend;
+package com.baqend.client.baqend.helper;
 
 import com.baqend.messaging.RMQLatencySender;
 import com.google.gson.Gson;
@@ -43,8 +43,8 @@ public class BaqendWebSocketClient {
                 rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
                 return;
             }
-            QueryResult queryResult = gson.fromJson(message, QueryResult.class);
-            rmqLatencySender.sendMessage("tock" + "," + 0 + "," + queryResult.getData().getTransactionID() + "," + System.nanoTime());
+            BaqendQueryResult baqendQueryResult = gson.fromJson(message, BaqendQueryResult.class);
+            rmqLatencySender.sendMessage("tock" + "," + 0 + "," + baqendQueryResult.getData().getTransactionID() + "," + System.nanoTime());
         } catch (Exception e) {
             e.printStackTrace();
         }

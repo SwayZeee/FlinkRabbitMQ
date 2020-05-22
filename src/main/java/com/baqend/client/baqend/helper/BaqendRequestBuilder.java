@@ -1,4 +1,4 @@
-package com.baqend.client.baqend;
+package com.baqend.client.baqend.helper;
 
 import java.util.HashMap;
 import java.util.UUID;

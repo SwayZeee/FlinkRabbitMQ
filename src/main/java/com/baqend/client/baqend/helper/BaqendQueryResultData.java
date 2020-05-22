@@ -1,9 +1,9 @@
-package com.baqend.client.baqend;
+package com.baqend.client.baqend.helper;
 
-public class QueryResultData {
+public class BaqendQueryResultData {
     private String transactionID;
 
-    public QueryResultData(String transactionID) {
+    public BaqendQueryResultData(String transactionID) {
         this.transactionID = transactionID;
     }
 
