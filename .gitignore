@@ -9,5 +9,5 @@
 /log/
 
 # Project specific
-/src/main/java/com/baqend/results/
-/src/main/java/com/baqend/workload/initialLoad.json
+/src/main/java/com/baqend/generated/results/
+/src/main/java/com/baqend/generated/
