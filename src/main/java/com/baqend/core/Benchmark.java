@@ -52,7 +52,7 @@ public class Benchmark {
         LatencyMeasurement latencyMeasurement = new LatencyMeasurement(config);
 
         Query query = new ExampleQuery();
-        SubscriptionOrchestrator subscriptionOrchestrator = new SubscriptionOrchestrator(client);
+        SubscriptionOrchestrator subscriptionOrchestrator = new SubscriptionOrchestrator(client, config);
         subscriptionOrchestrator.doQuerySubscriptions(1, query);
 
         loadGenerator.start();
