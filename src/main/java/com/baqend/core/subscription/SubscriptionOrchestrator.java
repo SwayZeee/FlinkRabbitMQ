@@ -1,15 +1,15 @@
-package com.baqend.core;
+package com.baqend.core.subscription;
 
-import com.baqend.client.Client;
+import com.baqend.clients.Client;
+import com.baqend.core.subscription.queries.Query;
 import com.baqend.messaging.RMQLatencySender;
-import com.baqend.query.Query;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
-public class QueryOrchestrator {
+public class SubscriptionOrchestrator {
 
     private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
 
@@ -17,26 +17,26 @@ public class QueryOrchestrator {
 
     private final Client client;
 
-    public QueryOrchestrator(Client client) throws IOException, TimeoutException {
+    public SubscriptionOrchestrator(Client client) throws IOException, TimeoutException {
         this.client = client;
     }
 
     public void doQuerySubscriptions(int amount, Query query) {
-        System.out.println("[QueryOrchestrator] - Performing Query Subscription");
+        System.out.println("[SubscriptionOrchestrator] - Performing Query Subscription");
         for (int i = 0; i < amount; i++) {
             UUID queryID = UUID.randomUUID();
             subscribeQuery(queryID, query);
         }
-        System.out.println("[QueryOrchestrator] - Query Subscription done");
+        System.out.println("[SubscriptionOrchestrator] - Query Subscription done");
     }
 
     public void undoQuerySubscriptions() {
-        System.out.println("[QueryOrchestrator] - Performing Query Unsubscription");
+        System.out.println("[SubscriptionOrchestrator] - Performing Query Unsubscription");
         for (UUID queryID : queryIDs) {
             unsubscribeQuery(queryID);
         }
         queryIDs.clear();
-        System.out.println("[QueryOrchestrator] - Query Unsubscription done");
+        System.out.println("[SubscriptionOrchestrator] - Query Unsubscription done");
     }
 
     private void subscribeQuery(UUID queryID, Query query) {
@@ -51,6 +51,6 @@ public class QueryOrchestrator {
 
     public void stop() {
         rmqLatencySender.close();
-        System.out.println("[QueryOrchestrator] - Stopped");
+        System.out.println("[SubscriptionOrchestrator] - Stopped");
     }
 }
