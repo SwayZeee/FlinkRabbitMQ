@@ -13,4 +13,6 @@ public class Config {
     public boolean isPerformingCleanUp;
     public int insertProportion;
     public int updateProportion;
+    public String workloadFile;
+    public String initialLoadFile;
 }
