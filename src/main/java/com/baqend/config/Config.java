@@ -8,6 +8,7 @@ public class Config {
     public int throughput;
     public int duration;
     public int waitingTime;
+    public boolean isMeasuringInitialResult;
     public boolean isPerformingLoad;
     public boolean isPerformingWarmUp;
     public boolean isPerformingCleanUp;
