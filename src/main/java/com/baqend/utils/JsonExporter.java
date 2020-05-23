@@ -1,7 +1,8 @@
 package com.baqend.utils;
 
-import com.baqend.workload.LoadData;
-import com.baqend.workload.Workload;
+import com.baqend.core.measurement.Result;
+import com.baqend.core.load.data.LoadData;
+import com.baqend.core.load.workload.Workload;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -16,11 +17,11 @@ public class JsonExporter {
         gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    public void exportLatenciesToJsonFile(ResultObject resultObject) {
+    public void exportLatenciesToJsonFile(Result result) {
         try {
             long timeStamp = System.currentTimeMillis();
-            Writer writer = new FileWriter("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\results\\" + timeStamp + ".json");
-            gson.toJson(resultObject, writer);
+            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + timeStamp + ".json");
+            gson.toJson(result, writer);
             writer.flush();
             writer.close();
             System.out.println("[JsonExporter] - Results exported (" + timeStamp + ".json)");
@@ -31,7 +32,7 @@ public class JsonExporter {
 
     public void exportInitialLoadToJsonFile(LoadData loadData) {
         try {
-            Writer writer = new FileWriter("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json");
+            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\load\\initialLoad.json");
             gson.toJson(loadData, writer);
             writer.flush();
             writer.close();
@@ -44,7 +45,7 @@ public class JsonExporter {
     public void exportWorkloadToJsonFile(Workload workload) {
         long timeStamp = System.currentTimeMillis();
         try {
-            Writer writer = new FileWriter("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\workload.json");
+            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\workloads\\workload.json");
             gson.toJson(workload, writer);
             writer.flush();
             writer.close();

@@ -1,15 +1,21 @@
 package com.baqend.core;
 
-import com.baqend.client.baqend.BaqendClient;
-import com.baqend.client.Client;
-import com.baqend.client.flink.FlinkClient;
-import com.baqend.config.ConfigObject;
-import com.baqend.query.ExampleQuery;
-import com.baqend.query.Query;
+import com.baqend.clients.baqend.BaqendClient;
+import com.baqend.clients.Client;
+import com.baqend.clients.flink.FlinkClient;
+import com.baqend.config.Config;
+import com.baqend.core.load.LoadGenerator;
+import com.baqend.core.measurement.LatencyMeasurement;
+import com.baqend.core.subscription.SubscriptionOrchestrator;
+import com.baqend.core.subscription.queries.ExampleQuery;
+import com.baqend.core.subscription.queries.Query;
 import com.google.gson.Gson;
 
 import java.io.FileReader;
 
+/**
+ *
+ */
 public class Benchmark {
 
     public static void main(String[] args) throws Exception {
@@ -21,10 +27,10 @@ public class Benchmark {
         System.out.println();
 
         Gson gson = new Gson();
-        ConfigObject configObject = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\config\\config.json"), ConfigObject.class);
+        Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
 
         Client client;
-        switch (configObject.clientToTest) {
+        switch (config.clientToTest) {
             case 1:
                 client = new BaqendClient();
                 break;
@@ -35,31 +41,31 @@ public class Benchmark {
                 throw new Exception("Invalid configuration.");
         }
 
-        LoadGenerator loadGenerator = new LoadGenerator(client, configObject);
-        if (configObject.isPerformingLoad) {
+        LoadGenerator loadGenerator = new LoadGenerator(client, config);
+        if (config.isPerformingLoad) {
             loadGenerator.load();
         }
-        if (configObject.isPerformingWarmUp) {
+        if (config.isPerformingWarmUp) {
             loadGenerator.warmUp();
         }
 
-        LatencyMeasurement latencyMeasurement = new LatencyMeasurement(configObject);
+        LatencyMeasurement latencyMeasurement = new LatencyMeasurement(config);
 
         Query query = new ExampleQuery();
-        QueryOrchestrator queryOrchestrator = new QueryOrchestrator(client);
-        queryOrchestrator.doQuerySubscriptions(1, query);
+        SubscriptionOrchestrator subscriptionOrchestrator = new SubscriptionOrchestrator(client);
+        subscriptionOrchestrator.doQuerySubscriptions(1, query);
 
         loadGenerator.start();
 
-        queryOrchestrator.undoQuerySubscriptions();
+        subscriptionOrchestrator.undoQuerySubscriptions();
 
-        if (configObject.isPerformingCleanUp) {
+        if (config.isPerformingCleanUp) {
             loadGenerator.cleanUp();
         }
 
         latencyMeasurement.doCalculationsAndExport();
 
-        queryOrchestrator.stop();
+        subscriptionOrchestrator.stop();
         loadGenerator.stop();
         latencyMeasurement.stop();
     }
