@@ -42,14 +42,13 @@ public class JsonExporter {
         }
     }
 
-    public void exportWorkloadToJsonFile(Workload workload) {
-        long timeStamp = System.currentTimeMillis();
+    public void exportWorkloadToJsonFile(Workload workload, String fileName) {
         try {
-            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\workloads\\workload.json");
+            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\workloads\\" + fileName + ".json");
             gson.toJson(workload, writer);
             writer.flush();
             writer.close();
-            System.out.println("[JsonExporter] - Workload exported (workload.json)");
+            System.out.println("[JsonExporter] - Workload exported (" + fileName + ".json)");
         } catch (IOException e) {
             e.printStackTrace();
         }
