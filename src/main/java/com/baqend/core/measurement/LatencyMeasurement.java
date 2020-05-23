@@ -230,7 +230,7 @@ public class LatencyMeasurement {
         );
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportLatenciesToJsonFile(result);
+            jsonExporter.exportLatenciesToJsonFile(result, config.workloadFile);
         } catch (Exception e) {
             e.printStackTrace();
         }
