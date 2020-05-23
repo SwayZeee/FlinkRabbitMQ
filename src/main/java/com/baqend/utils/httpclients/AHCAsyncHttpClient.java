@@ -1,17 +1,17 @@
-package com.baqend.utils;
+package com.baqend.utils.httpclients;
 
 import org.asynchttpclient.AsyncHttpClient;
 
 import static org.asynchttpclient.Dsl.*;
 
-public class AHClient {
+public class AHCAsyncHttpClient {
 
-    private static AHClient singleton = null;
+    private static AHCAsyncHttpClient singleton = null;
     private static AsyncHttpClient asyncHttpClient = asyncHttpClient();
 
-    public static synchronized AHClient getInstance() {
+    public static synchronized AHCAsyncHttpClient getInstance() {
         if (singleton == null) {
-            singleton = new AHClient();
+            singleton = new AHCAsyncHttpClient();
         }
         return singleton;
     }
