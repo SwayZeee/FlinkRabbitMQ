@@ -65,7 +65,7 @@ public class LoadGenerator {
         int rounds = config.duration;
         int throughput = config.throughput;
 
-        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workload\\workload.json"), Workload.class);
+        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\workload.json"), Workload.class);
 
         System.out.println("[LoadGenerator] - Performing Benchmark (" + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
