@@ -17,10 +17,10 @@ public class JsonExporter {
         gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    public void exportLatenciesToJsonFile(Result result) {
+    public void exportLatenciesToJsonFile(Result result, String directoryName) {
         try {
             long timeStamp = System.currentTimeMillis();
-            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + timeStamp + ".json");
+            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + directoryName + "\\" + timeStamp + ".json");
             gson.toJson(result, writer);
             writer.flush();
             writer.close();
