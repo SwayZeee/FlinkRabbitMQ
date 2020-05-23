@@ -33,7 +33,7 @@ public class LoadGenerator {
     public void load() throws FileNotFoundException {
         System.out.println("[LoadGenerator] - Performing Load");
         double startTime = System.currentTimeMillis();
-        LoadData loadData = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
+        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
         RateLimiter rateLimiter = RateLimiter.create(500);
         double x = 1;
         while (x <= loadData.getLoad().size()) {
@@ -65,7 +65,7 @@ public class LoadGenerator {
         int rounds = config.duration;
         int throughput = config.throughput;
 
-        Workload workload = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\workload.json"), Workload.class);
+        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\workload\\workload.json"), Workload.class);
 
         System.out.println("[LoadGenerator] - Performing Benchmark (" + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
