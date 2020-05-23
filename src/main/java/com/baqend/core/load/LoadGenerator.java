@@ -32,8 +32,8 @@ public class LoadGenerator {
 
     public void load() throws FileNotFoundException {
         System.out.println("[LoadGenerator] - Performing Load (" + config.initialLoadFile + ".json)");
-        double startTime = System.currentTimeMillis();
         LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\load\\" + config.initialLoadFile + ".json"), LoadData.class);
+        double startTime = System.currentTimeMillis();
         RateLimiter rateLimiter = RateLimiter.create(500);
         double x = 1;
         while (x <= loadData.getLoad().size()) {
