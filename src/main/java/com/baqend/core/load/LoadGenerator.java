@@ -31,9 +31,9 @@ public class LoadGenerator {
     }
 
     public void load() throws FileNotFoundException {
-        System.out.println("[LoadGenerator] - Performing Load");
+        System.out.println("[LoadGenerator] - Performing Load (" + config.initialLoadFile + ".json)");
         double startTime = System.currentTimeMillis();
-        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\load\\initialLoad.json"), LoadData.class);
+        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\load\\" + config.initialLoadFile + ".json"), LoadData.class);
         RateLimiter rateLimiter = RateLimiter.create(500);
         double x = 1;
         while (x <= loadData.getLoad().size()) {
@@ -65,9 +65,9 @@ public class LoadGenerator {
         int rounds = config.duration;
         int throughput = config.throughput;
 
-        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\workload.json"), Workload.class);
+        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.workloadFile + ".json"), Workload.class);
 
-        System.out.println("[LoadGenerator] - Performing Benchmark (" + throughput + " ops/s)");
+        System.out.println("[LoadGenerator] - Performing Benchmark (" + config.workloadFile + ".json @ " + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
         while (x <= rounds * throughput) {
             System.out.print("\r[LoadGenerator] - Benchmark in progess " + (int) (x / (rounds * throughput) * 100) + " %");
