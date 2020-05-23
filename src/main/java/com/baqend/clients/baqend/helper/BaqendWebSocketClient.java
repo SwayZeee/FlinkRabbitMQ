@@ -1,4 +1,4 @@
-package com.baqend.client.baqend.helper;
+package com.baqend.clients.baqend.helper;
 
 import com.baqend.messaging.RMQLatencySender;
 import com.google.gson.Gson;

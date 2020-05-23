@@ -1,4 +1,4 @@
-package com.baqend.client.baqend.helper;
+package com.baqend.clients.baqend.helper;
 
 public class BaqendQueryBuilder {
 
