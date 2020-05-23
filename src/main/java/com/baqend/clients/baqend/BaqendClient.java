@@ -1,10 +1,10 @@
-package com.baqend.client.baqend;
+package com.baqend.clients.baqend;
 
-import com.baqend.client.Client;
-import com.baqend.client.baqend.helper.BaqendQueryBuilder;
-import com.baqend.client.baqend.helper.BaqendRequestBuilder;
-import com.baqend.client.baqend.helper.BaqendWebSocketClient;
-import com.baqend.utils.AHClient;
+import com.baqend.clients.Client;
+import com.baqend.clients.baqend.helper.BaqendQueryBuilder;
+import com.baqend.clients.baqend.helper.BaqendRequestBuilder;
+import com.baqend.clients.baqend.helper.BaqendWebSocketClient;
+import com.baqend.utils.httpclients.AHCAsyncHttpClient;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -49,21 +49,21 @@ public class BaqendClient implements Client {
 
     @Override
     public void insert(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        AHClient.getInstance().post(BAQEND_HTTP_BASE_URI + "/db/" + table,
+        AHCAsyncHttpClient.getInstance().post(BAQEND_HTTP_BASE_URI + "/db/" + table,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void update(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        AHClient.getInstance().put(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key,
+        AHCAsyncHttpClient.getInstance().put(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key,
                 baqendRequestBuilder.composeRequestString(table, key, values, transactionID)
         );
     }
 
     @Override
     public void delete(String table, String key, UUID transactionID) {
-        AHClient.getInstance().delete(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key);
+        AHCAsyncHttpClient.getInstance().delete(BAQEND_HTTP_BASE_URI + "/db/" + table + "/" + key);
     }
 
     @Override
@@ -77,6 +77,6 @@ public class BaqendClient implements Client {
     @Override
     public void close() {
         baqendWebSocketClient.close();
-        AHClient.getInstance().stop();
+        AHCAsyncHttpClient.getInstance().stop();
     }
 }
