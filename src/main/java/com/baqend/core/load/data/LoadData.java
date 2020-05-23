@@ -1,4 +1,4 @@
-package com.baqend.workload;
+package com.baqend.core.load.data;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ public class LoadData {
     }
 
     public void addSingleDataSet(SingleDataSet singleDataSet) {
-        load.add(singleDataSet);
+        this.load.add(singleDataSet);
     }
 
 }

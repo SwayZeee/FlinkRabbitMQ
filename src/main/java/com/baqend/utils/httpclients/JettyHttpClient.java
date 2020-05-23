@@ -1,4 +1,4 @@
-package com.baqend.utils;
+package com.baqend.utils.httpclients;
 
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;

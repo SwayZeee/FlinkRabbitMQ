@@ -1,13 +1,13 @@
-package com.baqend.core;
+package com.baqend.core.load;
 
-import com.baqend.client.Client;
-import com.baqend.config.ConfigObject;
+import com.baqend.clients.Client;
+import com.baqend.config.Config;
+import com.baqend.core.load.data.LoadData;
+import com.baqend.core.load.workload.Workload;
+import com.baqend.core.load.workload.WorkloadEvent;
+import com.baqend.core.load.workload.WorkloadEventType;
 import com.baqend.messaging.RMQLatencySender;
 import com.baqend.utils.RandomDataGenerator;
-import com.baqend.workload.LoadData;
-import com.baqend.workload.Workload;
-import com.baqend.workload.WorkloadEvent;
-import com.baqend.workload.WorkloadEventType;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 
@@ -21,19 +21,19 @@ public class LoadGenerator {
 
     private final Gson gson = new Gson();
     private final Client client;
-    private final ConfigObject configObject;
+    private final Config config;
     private final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
     private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
 
-    public LoadGenerator(Client client, ConfigObject configObject) throws IOException, TimeoutException {
+    public LoadGenerator(Client client, Config config) throws IOException, TimeoutException {
         this.client = client;
-        this.configObject = configObject;
+        this.config = config;
     }
 
     public void load() throws FileNotFoundException {
         System.out.println("[LoadGenerator] - Performing Load");
         double startTime = System.currentTimeMillis();
-        LoadData loadData = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
+        LoadData loadData = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\initialLoad.json"), LoadData.class);
         RateLimiter rateLimiter = RateLimiter.create(500);
         double x = 1;
         while (x <= loadData.getLoad().size()) {
@@ -45,6 +45,12 @@ public class LoadGenerator {
         double stopTime = System.currentTimeMillis();
         double executionTime = stopTime - startTime;
         System.out.println("\r[LoadGenerator] - Load done (" + executionTime + " ms)");
+        try {
+            Thread.sleep(config.waitingTime);
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void warmUp() {
@@ -54,12 +60,12 @@ public class LoadGenerator {
     }
 
     public void start() throws FileNotFoundException {
-        RateLimiter rateLimiter = RateLimiter.create(configObject.throughput);
+        RateLimiter rateLimiter = RateLimiter.create(config.throughput);
         double x = 1;
-        int rounds = configObject.duration;
-        int throughput = configObject.throughput;
+        int rounds = config.duration;
+        int throughput = config.throughput;
 
-        Workload workload = gson.fromJson(new FileReader("C:\\Users\\Patrick\\Projects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\workload.json"), Workload.class);
+        Workload workload = gson.fromJson(new FileReader("C:\\Users\\RüschenbaumPatrickIn\\IdeaProjects\\rtdb-sp-benchmark\\src\\main\\java\\com\\baqend\\workload\\workload.json"), Workload.class);
 
         System.out.println("[LoadGenerator] - Performing Benchmark (" + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
@@ -73,7 +79,7 @@ public class LoadGenerator {
         double executionTime = stopTime - startTime;
         System.out.println("\r[LoadGenerator] - Benchmark done (" + executionTime + " ms)");
         try {
-            Thread.sleep(configObject.waitingTime);
+            Thread.sleep(config.waitingTime);
         } catch (
                 Exception e) {
             e.printStackTrace();

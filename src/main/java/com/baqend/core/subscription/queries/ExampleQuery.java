@@ -1,4 +1,4 @@
-package com.baqend.query;
+package com.baqend.core.subscription.queries;
 
 public class ExampleQuery implements Query {
 

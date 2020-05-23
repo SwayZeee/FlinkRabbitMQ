@@ -1,12 +1,12 @@
-package com.baqend.utils;
+package com.baqend.core.measurement;
 
-import com.baqend.config.ConfigObject;
+import com.baqend.config.Config;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-public class ResultObject {
-    private ConfigObject configObject;
+public class Result {
+    private Config config;
     private int ticks;
     private int tocks;
     private double quantitativeCorrectness;
@@ -19,20 +19,20 @@ public class ResultObject {
     private long ninetyNinthPercentile;
     private HashMap<UUID, Long> measurements;
 
-    public ResultObject(ConfigObject configObject,
-                        int ticks,
-                        int tocks,
-                        double quantitativeCorrectness,
-                        long avg,
-                        long median,
-                        long minimum,
-                        long maximum,
-                        long ninetiethPercentile,
-                        long ninetyFifthPercentile,
-                        long ninetyNinthPercentile,
-                        HashMap<UUID, Long> measurements
+    public Result(Config config,
+                  int ticks,
+                  int tocks,
+                  double quantitativeCorrectness,
+                  long avg,
+                  long median,
+                  long minimum,
+                  long maximum,
+                  long ninetiethPercentile,
+                  long ninetyFifthPercentile,
+                  long ninetyNinthPercentile,
+                  HashMap<UUID, Long> measurements
     ) {
-        this.configObject = configObject;
+        this.config = config;
         this.ticks = ticks;
         this.tocks = tocks;
         this.quantitativeCorrectness = quantitativeCorrectness;

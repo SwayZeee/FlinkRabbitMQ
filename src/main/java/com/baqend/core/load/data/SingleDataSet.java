@@ -1,4 +1,4 @@
-package com.baqend.workload;
+package com.baqend.core.load.data;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -18,5 +18,17 @@ public class SingleDataSet {
 
     public HashMap<String, String> getData() {
         return data;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SingleDataSet singleDataSet = (SingleDataSet) o;
+        return uuid == singleDataSet.uuid;
     }
 }

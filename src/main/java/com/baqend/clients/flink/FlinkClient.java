@@ -1,6 +1,6 @@
-package com.baqend.client.flink;
+package com.baqend.clients.flink;
 
-import com.baqend.client.Client;
+import com.baqend.clients.Client;
 import com.baqend.messaging.RMQMessageSender;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class FlinkClient implements Client {
 
     private void upsert(String table, String key, HashMap<String, String> values, UUID transactionID) {
         rmqMessageSender.sendMessage(
-                transactionID + "," +
+                transactionID.toString() + "," +
                         key + "," +
                         values.get("fieldOne") + "," +
                         values.get("fieldTwo") + "," +

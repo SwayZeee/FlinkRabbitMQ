@@ -1,5 +1,7 @@
-package com.baqend.workload;
+package com.baqend.core.load.data;
 
+import com.baqend.core.load.data.LoadData;
+import com.baqend.core.load.data.SingleDataSet;
 import com.baqend.utils.JsonExporter;
 import com.baqend.utils.RandomDataGenerator;
 

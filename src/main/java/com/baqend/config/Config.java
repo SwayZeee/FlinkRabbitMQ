@@ -1,6 +1,9 @@
 package com.baqend.config;
 
-public class ConfigObject {
+/**
+ *
+ */
+public class Config {
     public int clientToTest;
     public int throughput;
     public int duration;

@@ -1,8 +1,7 @@
-package com.baqend.core;
+package com.baqend.core.measurement;
 
-import com.baqend.config.ConfigObject;
+import com.baqend.config.Config;
 import com.baqend.utils.JsonExporter;
-import com.baqend.utils.ResultObject;
 import com.rabbitmq.client.*;
 
 import java.io.IOException;
@@ -27,10 +26,10 @@ public class LatencyMeasurement {
     private static Map<UUID, Long> tocks = new ConcurrentHashMap<>();
     private UUID initialTick;
 
-    private ConfigObject configObject;
+    private Config config;
 
-    public LatencyMeasurement(ConfigObject configObject) throws IOException, TimeoutException {
-        this.configObject = configObject;
+    public LatencyMeasurement(Config config) throws IOException, TimeoutException {
+        this.config = config;
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -194,8 +193,8 @@ public class LatencyMeasurement {
         System.out.println("[LatencyMeasurement] - Performing Calculations and Export");
         System.out.println();
 
-        System.out.println(ticks.size());
-        System.out.println(tocks.size());
+        System.out.println("Ticks: " + ticks.size());
+        System.out.println("Tocks: " + tocks.size());
 
         HashMap<UUID, Long> latencies = calculateAllLatencies();
         double quantitativeCorrectness = getQuantitativeCorrectness();
@@ -216,7 +215,7 @@ public class LatencyMeasurement {
         System.out.println("99th Percentile: " + ninetyNinthPercentile + " ns");
         System.out.println();
 
-        ResultObject resultObject = new ResultObject(configObject,
+        Result result = new Result(config,
                 ticks.size(),
                 tocks.size(),
                 quantitativeCorrectness,
@@ -231,7 +230,7 @@ public class LatencyMeasurement {
         );
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportLatenciesToJsonFile(resultObject);
+            jsonExporter.exportLatenciesToJsonFile(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
