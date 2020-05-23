@@ -1,6 +1,7 @@
 package com.baqend.core.subscription;
 
 import com.baqend.clients.Client;
+import com.baqend.config.Config;
 import com.baqend.core.subscription.queries.Query;
 import com.baqend.messaging.RMQLatencySender;
 
@@ -16,9 +17,11 @@ public class SubscriptionOrchestrator {
     private ArrayList<UUID> queryIDs = new ArrayList<UUID>();
 
     private final Client client;
+    private final Config config;
 
-    public SubscriptionOrchestrator(Client client) throws IOException, TimeoutException {
+    public SubscriptionOrchestrator(Client client, Config config) throws IOException, TimeoutException {
         this.client = client;
+        this.config = config;
     }
 
     public void doQuerySubscriptions(int amount, Query query) {
@@ -40,7 +43,9 @@ public class SubscriptionOrchestrator {
     }
 
     private void subscribeQuery(UUID queryID, Query query) {
+        if (config.isMeasuringInitialResult) {
         rmqLatencySender.sendMessage("tick" + "," + 1 + "," + queryID.toString() + "," + System.nanoTime());
+        }
         client.subscribeQuery(queryID, query.getQuery());
         queryIDs.add(queryID);
     }
