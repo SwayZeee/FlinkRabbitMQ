@@ -1,8 +1,11 @@
-package com.baqend.core.load.workload;
+package com.baqend.core.load.workload.generators;
 
 import com.baqend.config.Config;
 import com.baqend.core.load.data.LoadData;
 import com.baqend.core.load.data.SingleDataSet;
+import com.baqend.core.load.workload.Workload;
+import com.baqend.core.load.workload.WorkloadEvent;
+import com.baqend.core.load.workload.WorkloadEventType;
 import com.baqend.utils.JsonExporter;
 import com.baqend.utils.RandomDataGenerator;
 import com.google.gson.Gson;
@@ -12,7 +15,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class WorkloadGenerator {
+public class WorkloadAGenerator {
 
     private static final Gson gson = new Gson();
     private static final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
@@ -150,6 +153,6 @@ public class WorkloadGenerator {
             }
         }
         //TODO: compose workload name of parameters for automatic loading of LoadGenerator?
-        jsonExporter.exportWorkloadToJsonFile(workload);
+        jsonExporter.exportWorkloadToJsonFile(workload, "workload_a_" + throughput);
     }
 }
