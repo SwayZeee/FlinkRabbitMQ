@@ -1,4 +1,4 @@
-package com.baqend.workload;
+package com.baqend.core.load.workload;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public class Workload {
         this.workload = workload;
     }
 
-    public void addWorklodEvent(WorkloadEvent workloadEvent) {
+    public void addWorkloadEvent(WorkloadEvent workloadEvent) {
         workload.add(workloadEvent);
     }
 }

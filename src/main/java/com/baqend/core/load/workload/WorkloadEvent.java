@@ -1,4 +1,6 @@
-package com.baqend.workload;
+package com.baqend.core.load.workload;
+
+import com.baqend.core.load.data.SingleDataSet;
 
 import java.util.UUID;
 
