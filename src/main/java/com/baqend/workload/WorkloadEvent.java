@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class WorkloadEvent {
     private UUID transactionID;
-    private WorkloadEventType type;
-    private boolean relevant;
+    private final WorkloadEventType type;
+    private final boolean relevant;
     private SingleDataSet singleDataSet;
 
     // workload event for inserts and updates

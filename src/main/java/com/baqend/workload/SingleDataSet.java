@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class SingleDataSet {
-    private UUID uuid;
-    private HashMap<String, String> data;
+    private final UUID uuid;
+    private final HashMap<String, String> data;
 
     public SingleDataSet(UUID uuid, HashMap<String, String> data) {
         this.uuid = uuid;

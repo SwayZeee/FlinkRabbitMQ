@@ -5,18 +5,18 @@ import com.baqend.config.Config;
 import java.util.HashMap;
 
 public class MeasurementResult {
-    private Config config;
-    private int ticks;
-    private int tocks;
-    private double quantitativeCorrectness;
-    private long avg;
-    private long median;
-    private long minimum;
-    private long maximum;
-    private long ninetiethPercentile;
-    private long ninetyFifthPercentile;
-    private long ninetyNinthPercentile;
-    private HashMap<String, Long> measurements;
+    private final Config config;
+    private final int ticks;
+    private final int tocks;
+    private final double quantitativeCorrectness;
+    private final long avg;
+    private final long median;
+    private final long minimum;
+    private final long maximum;
+    private final long ninetiethPercentile;
+    private final long ninetyFifthPercentile;
+    private final long ninetyNinthPercentile;
+    private final HashMap<String, Long> measurements;
 
     public MeasurementResult(Config config,
                              int ticks,

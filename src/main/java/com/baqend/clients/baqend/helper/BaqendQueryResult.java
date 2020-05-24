@@ -4,12 +4,12 @@ import java.util.Date;
 import java.util.UUID;
 
 public class BaqendQueryResult {
-    private String id;
-    private Date date;
-    private String match;
-    private String matchType;
-    private String operation;
-    private BaqendQueryResultData data;
+    private final String id;
+    private final Date date;
+    private final String match;
+    private final String matchType;
+    private final String operation;
+    private final BaqendQueryResultData data;
 
     public BaqendQueryResult(String id, Date date, String match, String matchType, String operation, BaqendQueryResultData data) {
         this.id = id;

@@ -3,7 +3,7 @@ package com.baqend.workload;
 import java.util.ArrayList;
 
 public class Workload {
-    private ArrayList<WorkloadEvent> workload = new ArrayList<WorkloadEvent>();
+    private final ArrayList<WorkloadEvent> workload = new ArrayList<WorkloadEvent>();
 
     public Workload() {
     }

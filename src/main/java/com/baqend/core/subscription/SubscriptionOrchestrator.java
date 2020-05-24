@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class SubscriptionOrchestrator {
 
-    private ArrayList<UUID> queryIDs = new ArrayList<UUID>();
+    private final ArrayList<UUID> queryIDs = new ArrayList<UUID>();
 
     private final Client client;
     private final Config config;

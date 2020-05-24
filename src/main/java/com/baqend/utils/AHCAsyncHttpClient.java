@@ -7,7 +7,7 @@ import static org.asynchttpclient.Dsl.*;
 public class AHCAsyncHttpClient {
 
     private static AHCAsyncHttpClient singleton = null;
-    private static AsyncHttpClient asyncHttpClient = asyncHttpClient();
+    private static final AsyncHttpClient asyncHttpClient = asyncHttpClient();
 
     public static synchronized AHCAsyncHttpClient getInstance() {
         if (singleton == null) {

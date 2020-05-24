@@ -22,7 +22,7 @@ public class LatencyMeasurement implements Observer<ClientChangeEvent> {
     private static final Map<String, Long> ticks = new ConcurrentHashMap<>();
     private static final Map<String, Long> tocks = new ConcurrentHashMap<>();
 
-    private Config config;
+    private final Config config;
 
     public LatencyMeasurement(Config config) {
         this.config = config;
