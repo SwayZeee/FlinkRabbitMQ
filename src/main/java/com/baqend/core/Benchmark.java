@@ -7,8 +7,10 @@ import com.baqend.config.Config;
 import com.baqend.core.load.LoadGenerator;
 import com.baqend.core.measurement.LatencyMeasurement;
 import com.baqend.core.subscription.SubscriptionOrchestrator;
-import com.baqend.core.subscription.queries.ExampleQuery;
+import com.baqend.core.subscription.queries.FieldOneQuery;
+import com.baqend.core.subscription.queries.NumberQuery;
 import com.baqend.core.subscription.queries.Query;
+import com.baqend.core.subscription.QuerySet;
 import com.google.gson.Gson;
 
 import java.io.FileReader;
@@ -49,11 +51,15 @@ public class Benchmark {
             loadGenerator.warmUp();
         }
 
-        LatencyMeasurement latencyMeasurement = new LatencyMeasurement(config);
+        // Generating queries for subscription
+        QuerySet querySet = new QuerySet();
+        for (int i = 1; i <= 100; i++) {
+            Query query = new NumberQuery(i);
+            querySet.addQuery(query);
+        }
 
-        Query query = new ExampleQuery();
         SubscriptionOrchestrator subscriptionOrchestrator = new SubscriptionOrchestrator(client, config);
-        subscriptionOrchestrator.doQuerySubscriptions(1, query);
+        subscriptionOrchestrator.doQuerySubscriptions(querySet);
 
         loadGenerator.start();
 
@@ -63,10 +69,8 @@ public class Benchmark {
             loadGenerator.cleanUp();
         }
 
-        latencyMeasurement.doCalculationsAndExport();
+        LatencyMeasurement.getInstance().doCalculationsAndExport();
 
-        subscriptionOrchestrator.stop();
         loadGenerator.stop();
-        latencyMeasurement.stop();
     }
 }

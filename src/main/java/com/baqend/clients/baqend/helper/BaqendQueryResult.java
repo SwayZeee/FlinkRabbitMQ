@@ -4,14 +4,14 @@ import java.util.Date;
 import java.util.UUID;
 
 public class BaqendQueryResult {
-    private UUID id;
+    private String id;
     private Date date;
     private String match;
     private String matchType;
     private String operation;
     private BaqendQueryResultData data;
 
-    public BaqendQueryResult(UUID id, Date date, String match, String matchType, String operation, BaqendQueryResultData data) {
+    public BaqendQueryResult(String id, Date date, String match, String matchType, String operation, BaqendQueryResultData data) {
         this.id = id;
         this.date = date;
         this.match = match;
@@ -20,7 +20,7 @@ public class BaqendQueryResult {
         this.data = data;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 

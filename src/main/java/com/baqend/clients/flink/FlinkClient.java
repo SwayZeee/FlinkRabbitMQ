@@ -1,7 +1,8 @@
 package com.baqend.clients.flink;
 
 import com.baqend.clients.Client;
-import com.baqend.messaging.RMQMessageSender;
+import com.baqend.clients.flink.helper.FlinkRMQMessageReceiver;
+import com.baqend.clients.flink.helper.FlinkRMQMessageSender;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,17 +11,24 @@ import java.util.concurrent.TimeoutException;
 
 public class FlinkClient implements Client {
 
-    private final RMQMessageSender rmqMessageSender = new RMQMessageSender();
+    private final FlinkRMQMessageSender flinkRmqMessageSender = new FlinkRMQMessageSender();
+    private FlinkRMQMessageReceiver flinkRMQMessageReceiver;
 
     public FlinkClient() throws IOException, TimeoutException {
     }
 
     @Override
     public void subscribeQuery(UUID queryID, String query) {
+        try {
+            flinkRMQMessageReceiver = new FlinkRMQMessageReceiver();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void unsubscribeQuery(UUID queryID) {
+        flinkRMQMessageReceiver.close();
     }
 
     @Override
@@ -43,11 +51,11 @@ public class FlinkClient implements Client {
 
     @Override
     public void close() {
-        rmqMessageSender.close();
+        flinkRmqMessageSender.close();
     }
 
     private void upsert(String table, String key, HashMap<String, String> values, UUID transactionID) {
-        rmqMessageSender.sendMessage(
+        flinkRmqMessageSender.sendMessage(
                 transactionID.toString() + "," +
                         key + "," +
                         values.get("fieldOne") + "," +

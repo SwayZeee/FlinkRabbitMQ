@@ -1,21 +1,19 @@
 package com.baqend.clients.baqend.helper;
 
-import com.baqend.messaging.RMQLatencySender;
+import com.baqend.core.measurement.LatencyMeasurement;
 import com.google.gson.Gson;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.TimeoutException;
 
 @ClientEndpoint
 public class BaqendWebSocketClient {
-    private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
     private final Gson gson = new Gson();
 
     private Session userSession = null;
 
-    public BaqendWebSocketClient(URI endpointURI) throws IOException, TimeoutException {
+    public BaqendWebSocketClient(URI endpointURI) {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         try {
             container.connectToServer(this, endpointURI);
@@ -27,24 +25,23 @@ public class BaqendWebSocketClient {
     @OnOpen
     public void onOpen(Session userSession) {
         this.userSession = userSession;
-        // System.out.println("WS opened: " + userSession.toString());
     }
 
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
         this.userSession = null;
-        // System.out.println("WS closed: " + reason.toString());
     }
 
     @OnMessage
     public void onMessage(String message) {
         try {
             if (message.contains("\"type\":\"result\"")) {
-                rmqLatencySender.sendMessage("tock" + "," + 1 + "," + " " + "," + System.nanoTime());
+                BaqendInitialQueryResult baqendInitialQueryResult = gson.fromJson(message, BaqendInitialQueryResult.class);
+                LatencyMeasurement.getInstance().tock(baqendInitialQueryResult.getId() + "," + baqendInitialQueryResult.getId(), System.nanoTime());
                 return;
             }
             BaqendQueryResult baqendQueryResult = gson.fromJson(message, BaqendQueryResult.class);
-            rmqLatencySender.sendMessage("tock" + "," + 0 + "," + baqendQueryResult.getData().getTransactionID() + "," + System.nanoTime());
+            LatencyMeasurement.getInstance().tock(baqendQueryResult.getId() + "," + baqendQueryResult.getData().getTransactionID(), System.nanoTime());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +53,6 @@ public class BaqendWebSocketClient {
 
     public void close() {
         try {
-            rmqLatencySender.close();
             this.userSession.close();
         } catch (IOException e) {
             e.printStackTrace();

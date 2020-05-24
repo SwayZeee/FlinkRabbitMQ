@@ -7,21 +7,21 @@ public class BaqendQueryBuilder {
 
     public String composeSubscribeQueryString(String userSession, String query) {
         // TODO: do the query mapping from SQL to baqend query string
-        return "{\n" +
-                "  \"id\": \"" + userSession + "\",\n" +
-                "  \"type\": \"subscribe\",\n" +
-                "  \"token\": null,\n" +
-                "  \"initial\": true,\n" +
-                "  \"bucket\": \"Test\",\n" +
-                "  \"query\": \"{\\\"fieldOne\\\": 1}\",\n" +
-                "  \"operations\": [\n" +
-                "    \"any\"\n" +
-                "  ],\n" +
-                "  \"matchTypes\": [\n" +
-                "    \"all\"\n" +
-                "  ]\n}";
+//        return "{\n" +
+//                "  \"id\": \"" + userSession + "\",\n" +
+//                "  \"type\": \"subscribe\",\n" +
+//                "  \"token\": null,\n" +
+//                "  \"initial\": true,\n" +
+//                "  \"bucket\": \"Test\",\n" +
+//                "  \"query\": \"{\\\"fieldOne\\\": 1}\",\n" +
+//                "  \"operations\": [\n" +
+//                "    \"any\"\n" +
+//                "  ],\n" +
+//                "  \"matchTypes\": [\n" +
+//                "    \"all\"\n" +
+//                "  ]\n}";
 
-        /*String queryString = "{\n" +
+        String queryString = "{\n" +
                 "  \"id\": \"" + userSession + "\",\n" +
                 "  \"type\": \"subscribe\",\n" +
                 "  \"token\": null,\n" +
@@ -35,7 +35,8 @@ public class BaqendQueryBuilder {
                 "  \"matchTypes\": [\n" +
                 "    \"all\"\n" +
                 "  ]\n}");
-*/
+
+        return queryString;
     }
 
     public String composeUnsubscribeQueryString(String userSession) {

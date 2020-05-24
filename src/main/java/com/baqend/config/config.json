@@ -1,14 +1,14 @@
 {
-  "clientToTest": 2,
+  "clientToTest": 1,
   "throughput": 1000,
   "duration": 60,
   "waitingTime": 5000,
-  "isMeasuringInitialResult": false,
+  "isMeasuringInitialResult": true,
   "isPerformingLoad": true,
   "isPerformingWarmUp": false,
-  "isPerformingCleanUp": false,
+  "isPerformingCleanUp": true,
   "insertProportion": 25,
   "updateProportion": 75,
-  "workloadFile": "workload_b_100",
+  "workloadFile": "workload_c_1000",
   "initialLoadFile": "initialLoad"
 }

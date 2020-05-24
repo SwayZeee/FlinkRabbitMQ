@@ -2,35 +2,37 @@ package com.baqend.core.subscription;
 
 import com.baqend.clients.Client;
 import com.baqend.config.Config;
+import com.baqend.core.measurement.LatencyMeasurement;
 import com.baqend.core.subscription.queries.Query;
-import com.baqend.messaging.RMQLatencySender;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 public class SubscriptionOrchestrator {
-
-    private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
 
     private ArrayList<UUID> queryIDs = new ArrayList<UUID>();
 
     private final Client client;
     private final Config config;
 
-    public SubscriptionOrchestrator(Client client, Config config) throws IOException, TimeoutException {
+    public SubscriptionOrchestrator(Client client, Config config) {
         this.client = client;
         this.config = config;
     }
 
-    public void doQuerySubscriptions(int amount, Query query) {
+    public void doQuerySubscriptions(QuerySet querySet) {
         System.out.println("[SubscriptionOrchestrator] - Performing Query Subscription");
-        for (int i = 0; i < amount; i++) {
+        for (Query query: querySet.getQueries()) {
             UUID queryID = UUID.randomUUID();
             subscribeQuery(queryID, query);
         }
         System.out.println("[SubscriptionOrchestrator] - Query Subscription done");
+        try {
+            Thread.sleep(config.waitingTime);
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void undoQuerySubscriptions() {
@@ -44,7 +46,7 @@ public class SubscriptionOrchestrator {
 
     private void subscribeQuery(UUID queryID, Query query) {
         if (config.isMeasuringInitialResult) {
-        rmqLatencySender.sendMessage("tick" + "," + 1 + "," + queryID.toString() + "," + System.nanoTime());
+            LatencyMeasurement.getInstance().tick(queryID.toString(), System.nanoTime());
         }
         client.subscribeQuery(queryID, query.getQuery());
         queryIDs.add(queryID);
@@ -52,10 +54,5 @@ public class SubscriptionOrchestrator {
 
     private void unsubscribeQuery(UUID queryID) {
         client.unsubscribeQuery(queryID);
-    }
-
-    public void stop() {
-        rmqLatencySender.close();
-        System.out.println("[SubscriptionOrchestrator] - Stopped");
     }
 }

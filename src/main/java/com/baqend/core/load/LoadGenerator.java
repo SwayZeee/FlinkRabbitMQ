@@ -6,26 +6,21 @@ import com.baqend.core.load.data.LoadData;
 import com.baqend.core.load.workload.Workload;
 import com.baqend.core.load.workload.WorkloadEvent;
 import com.baqend.core.load.workload.WorkloadEventType;
-import com.baqend.messaging.RMQLatencySender;
-import com.baqend.utils.RandomDataGenerator;
+import com.baqend.core.measurement.LatencyMeasurement;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 public class LoadGenerator {
 
     private final Gson gson = new Gson();
     private final Client client;
     private final Config config;
-    private final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-    private final RMQLatencySender rmqLatencySender = new RMQLatencySender();
 
-    public LoadGenerator(Client client, Config config) throws IOException, TimeoutException {
+    public LoadGenerator(Client client, Config config) {
         this.client = client;
         this.config = config;
     }
@@ -88,7 +83,7 @@ public class LoadGenerator {
 
     public void step(WorkloadEvent workloadEvent) {
         if (workloadEvent.isRelevant()) {
-            rmqLatencySender.sendMessage("tick" + "," + 0 + "," + workloadEvent.getTransactionID() + "," + System.nanoTime());
+            LatencyMeasurement.getInstance().tick(workloadEvent.getTransactionID().toString(), System.nanoTime());
         }
         if (workloadEvent.getType() == WorkloadEventType.INSERT) {
             client.insert("Test", workloadEvent.getSingleDataSet().getUuid().toString(), workloadEvent.getSingleDataSet().getData(), workloadEvent.getTransactionID());
@@ -117,7 +112,6 @@ public class LoadGenerator {
 
     public void stop() {
         client.close();
-        rmqLatencySender.close();
         System.out.println("[LoadGenerator] - Stopped");
     }
 }

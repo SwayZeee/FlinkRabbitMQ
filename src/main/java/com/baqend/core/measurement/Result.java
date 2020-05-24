@@ -17,7 +17,7 @@ public class Result {
     private long ninetiethPercentile;
     private long ninetyFifthPercentile;
     private long ninetyNinthPercentile;
-    private HashMap<UUID, Long> measurements;
+    private HashMap<String, Long> measurements;
 
     public Result(Config config,
                   int ticks,
@@ -30,7 +30,7 @@ public class Result {
                   long ninetiethPercentile,
                   long ninetyFifthPercentile,
                   long ninetyNinthPercentile,
-                  HashMap<UUID, Long> measurements
+                  HashMap<String, Long> measurements
     ) {
         this.config = config;
         this.ticks = ticks;
