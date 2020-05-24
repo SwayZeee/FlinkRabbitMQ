@@ -1,4 +1,4 @@
-package com.baqend.messaging;
+package com.baqend.clients.flink.helper;
 
 import com.rabbitmq.client.*;
 
@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class RMQMessageSender {
+public class FlinkRMQMessageSender {
 
     private final Connection connection;
     private final Channel channel;
     private final String EXCHANGE_NAME = "benchmark";
 
-    public RMQMessageSender() throws IOException, TimeoutException {
+    public FlinkRMQMessageSender() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
