@@ -10,12 +10,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 public class BaqendClient implements Client {
 
@@ -30,7 +28,7 @@ public class BaqendClient implements Client {
     public BaqendClient() {
         try {
             baqendWebSocketClient = new BaqendWebSocketClient(new URI(BAQEND_WEBSOCKET_URI));
-        } catch (IOException | TimeoutException | URISyntaxException e) {
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
