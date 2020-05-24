@@ -3,7 +3,8 @@ package com.baqend.core.subscription;
 import com.baqend.clients.Client;
 import com.baqend.config.Config;
 import com.baqend.core.measurement.LatencyMeasurement;
-import com.baqend.core.subscription.queries.Query;
+import com.baqend.core.subscription.query.Query;
+import com.baqend.core.subscription.query.QuerySet;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -14,10 +15,12 @@ public class SubscriptionOrchestrator {
 
     private final Client client;
     private final Config config;
+    private final LatencyMeasurement latencyMeasurement;
 
-    public SubscriptionOrchestrator(Client client, Config config) {
+    public SubscriptionOrchestrator(Client client, Config config, LatencyMeasurement latencyMeasurement) {
         this.client = client;
         this.config = config;
+        this.latencyMeasurement = latencyMeasurement;
     }
 
     public void doQuerySubscriptions(QuerySet querySet) {
@@ -46,9 +49,9 @@ public class SubscriptionOrchestrator {
 
     private void subscribeQuery(UUID queryID, Query query) {
         if (config.isMeasuringInitialResult) {
-            LatencyMeasurement.getInstance().tick(queryID.toString(), System.nanoTime());
+            latencyMeasurement.tick(queryID.toString());
         }
-        client.subscribeQuery(queryID, query.getQuery());
+        client.subscribeQuery(queryID, query);
         queryIDs.add(queryID);
     }
 

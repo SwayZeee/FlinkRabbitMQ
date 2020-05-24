@@ -1,8 +1,12 @@
 package com.baqend.core.measurement;
 
+import com.baqend.clients.ClientChangeEvent;
 import com.baqend.config.Config;
 import com.baqend.utils.JsonExporter;
 import com.google.gson.Gson;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,27 +17,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
 
-public class LatencyMeasurement {
-
-    private static LatencyMeasurement singleton = null;
+public class LatencyMeasurement implements Observer<ClientChangeEvent> {
 
     private static final Map<String, Long> ticks = new ConcurrentHashMap<>();
     private static final Map<String, Long> tocks = new ConcurrentHashMap<>();
-    private final ArrayList<String> initialTicks = new ArrayList<>();
 
-    public static synchronized LatencyMeasurement getInstance() {
-        if (singleton == null) {
-            singleton = new LatencyMeasurement();
-        }
-        return singleton;
+    private Config config;
+
+    public LatencyMeasurement(Config config) {
+        this.config = config;
     }
 
-    public void tick(String transactionID, long timeStamp) {
-        ticks.put(transactionID, timeStamp);
+    public void tick(String transactionID) {
+        ticks.put(transactionID, System.nanoTime());
     }
 
-    public void tock(String queryTransactionID, long timeStamp) {
-        tocks.put(queryTransactionID, timeStamp);
+    public void tock(String queryID, String transactionID) {
+        tocks.put(queryID + "," + transactionID, System.nanoTime());
     }
 
     private long calculateLatency(String queryTransactionID) {
@@ -146,7 +146,7 @@ public class LatencyMeasurement {
         Gson gson = new Gson();
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
 
-        Result result = new Result(config,
+        MeasurementResult measurementResult = new MeasurementResult(config,
                 ticks.size(),
                 tocks.size(),
                 quantitativeCorrectness,
@@ -161,10 +161,37 @@ public class LatencyMeasurement {
         );
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportLatenciesToJsonFile(result, config.workloadFile);
+            jsonExporter.exportLatenciesToJsonFile(measurementResult, config.workload + "_" + config.throughput);
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println("[LatencyMeasurement] - Calculations and Export done");
+    }
+
+    @Override
+    public void onSubscribe(@NonNull Disposable d) {
+
+    }
+
+    @Override
+    public void onNext(ClientChangeEvent clientChangeEvent) {
+        if (clientChangeEvent.getType().equals("result") && !config.isMeasuringInitialResult) {
+            return;
+        }
+        tock(clientChangeEvent.getQueryID(), clientChangeEvent.getTransactionID());
+    }
+
+    @Override
+    public void onError(@NonNull Throwable e) {
+
+    }
+
+    @Override
+    public void onComplete() {
+        try {
+            doCalculationsAndExport();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

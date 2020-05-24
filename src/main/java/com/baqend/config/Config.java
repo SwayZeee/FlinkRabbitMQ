@@ -1,8 +1,5 @@
 package com.baqend.config;
 
-/**
- *
- */
 public class Config {
     public int clientToTest;
     public int throughput;
@@ -14,6 +11,6 @@ public class Config {
     public boolean isPerformingCleanUp;
     public int insertProportion;
     public int updateProportion;
-    public String workloadFile;
+    public String workload;
     public String initialLoadFile;
 }

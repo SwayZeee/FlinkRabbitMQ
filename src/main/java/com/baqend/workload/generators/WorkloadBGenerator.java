@@ -1,11 +1,11 @@
-package com.baqend.core.load.workload.generators;
+package com.baqend.workload.generators;
 
 import com.baqend.config.Config;
-import com.baqend.core.load.data.LoadData;
-import com.baqend.core.load.data.SingleDataSet;
-import com.baqend.core.load.workload.Workload;
-import com.baqend.core.load.workload.WorkloadEvent;
-import com.baqend.core.load.workload.WorkloadEventType;
+import com.baqend.workload.LoadData;
+import com.baqend.workload.SingleDataSet;
+import com.baqend.workload.Workload;
+import com.baqend.workload.WorkloadEvent;
+import com.baqend.workload.WorkloadEventType;
 import com.baqend.utils.JsonExporter;
 import com.baqend.utils.RandomDataGenerator;
 import com.google.gson.Gson;
@@ -31,17 +31,17 @@ public class WorkloadBGenerator {
     }
 
     public static void generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
-        LoadData loadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\load\\initialLoad.json"), LoadData.class);
+        Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\initialLoad.json"), Workload.class);
         LoadData relevantTupels = new LoadData();
         LoadData irrelevantTupels = new LoadData();
         Workload workload = new Workload();
 
-        for (SingleDataSet singleDataSet : loadData.getLoad()) {
+        for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
             // TODO: perform check for relevant data tupels in initial load
-            if (singleDataSet.getData().get("fieldOne").equals("1")) {
-                relevantTupels.addSingleDataSet(singleDataSet);
+            if (workloadEvent.getSingleDataSet().getData().get("fieldOne").equals("1")) {
+                relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
-                irrelevantTupels.addSingleDataSet(singleDataSet);
+                irrelevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             }
         }
 
@@ -62,19 +62,20 @@ public class WorkloadBGenerator {
                     data.put("fieldSeven", Integer.toString(randomDataGenerator.generateRandomInteger(10001, 100000)));
                     data.put("fieldEight", Double.toString(randomDataGenerator.generateRandomDouble(10001, 100000)));
                     data.put("fieldNine", randomDataGenerator.generateRandomString(18, true, false));
-                    data.put("number", Integer.toString(loadData.getLoad().size() + 1));
+                    data.put("number", Integer.toString(initialWorkloadData.getWorkload().size() + 1));
                     SingleDataSet newSingleDataSet = new SingleDataSet(UUID.randomUUID(), data);
 
-                    loadData.addSingleDataSet(newSingleDataSet);
                     relevantTupels.addSingleDataSet(newSingleDataSet);
-                    WorkloadEvent workloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, true, newSingleDataSet);
-                    workload.addWorkloadEvent(workloadEvent);
+                    WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, true, newSingleDataSet);
+                    initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
+                    workload.addWorkloadEvent(newWorkloadEvent);
                     // UPDATE
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     boolean isDone = false;
                     while (!isDone) {
-                        int randomIndex = randomDataGenerator.generateRandomInteger(0, loadData.getLoad().size() - 1);
-                        SingleDataSet singleDataSet = loadData.getLoad().get(randomIndex);
+                        int randomIndex = randomDataGenerator.generateRandomInteger(0, initialWorkloadData.getWorkload().size() - 1);
+                        WorkloadEvent workloadEvent = initialWorkloadData.getWorkload().get(randomIndex);
+                        SingleDataSet singleDataSet = workloadEvent.getSingleDataSet();
                         if (!relevantTupels.getLoad().contains(singleDataSet)) {
                             // update notification
                             HashMap<String, String> data = new HashMap<String, String>();
@@ -92,13 +93,11 @@ public class WorkloadBGenerator {
 
                             relevantTupels.addSingleDataSet(newSingleDataSet);
                             irrelevantTupels.getLoad().remove(newSingleDataSet);
-                            WorkloadEvent workloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
-                            workload.addWorkloadEvent(workloadEvent);
+                            WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
+                            workload.addWorkloadEvent(newWorkloadEvent);
                             isDone = true;
                         }
                     }
-                } else {
-                    // WorkloadEventType.DELETE not implemented
                 }
             } else {
                 HashMap<String, String> data = new HashMap<String, String>();
@@ -113,27 +112,25 @@ public class WorkloadBGenerator {
                 data.put("fieldNine", randomDataGenerator.generateRandomString(18, true, false));
 
                 if (randomNumber <= insertProportion) {
-                    data.put("number", Integer.toString(loadData.getLoad().size() + 1));
+                    data.put("number", Integer.toString(initialWorkloadData.getWorkload().size() + 1));
                     SingleDataSet newSingleDataSet = new SingleDataSet(UUID.randomUUID(), data);
 
-                    loadData.addSingleDataSet(newSingleDataSet);
                     irrelevantTupels.addSingleDataSet(newSingleDataSet);
-                    WorkloadEvent workloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, false, newSingleDataSet);
-                    workload.addWorkloadEvent(workloadEvent);
+                    WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, false, newSingleDataSet);
+                    initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
+                    workload.addWorkloadEvent(newWorkloadEvent);
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
                     SingleDataSet singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
                     data.put("number", singleDataSet.getData().get("number"));
                     SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
 
-                    WorkloadEvent workloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, false, newSingleDataSet);
-                    workload.addWorkloadEvent(workloadEvent);
-                } else {
-                    // WorkloadEventType.DELETE not implemented
+                    WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, false, newSingleDataSet);
+                    workload.addWorkloadEvent(newWorkloadEvent);
                 }
             }
         }
         //TODO: compose workload name of parameters for automatic loading of LoadGenerator?
-        jsonExporter.exportWorkloadToJsonFile(workload, "workload_b_" + throughput);
+        jsonExporter.exportWorkloadToJsonFile(workload, "workload_b", throughput);
     }
 }

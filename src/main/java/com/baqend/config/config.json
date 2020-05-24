@@ -9,6 +9,6 @@
   "isPerformingCleanUp": true,
   "insertProportion": 25,
   "updateProportion": 75,
-  "workloadFile": "workload_c_1000",
+  "workload": "workload_a",
   "initialLoadFile": "initialLoad"
 }

@@ -1,7 +1,8 @@
 package com.baqend.clients.flink.helper;
 
-import com.baqend.core.measurement.LatencyMeasurement;
+import com.baqend.clients.ClientChangeEvent;
 import com.rabbitmq.client.*;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -12,7 +13,12 @@ public class FlinkRMQMessageReceiver {
     private static Connection connection;
     private static Channel channel;
 
-    public FlinkRMQMessageReceiver() throws IOException, TimeoutException {
+    private final ReplaySubject<ClientChangeEvent> replaySubject;
+
+    public FlinkRMQMessageReceiver(ReplaySubject<ClientChangeEvent> replaySubject) throws IOException, TimeoutException {
+
+        this.replaySubject = replaySubject;
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         connection = factory.newConnection();
@@ -54,7 +60,10 @@ public class FlinkRMQMessageReceiver {
             public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) {
                 String message = new String(bytes);
                 String[] tokens = message.split(",");
-                LatencyMeasurement.getInstance().tock(tokens[0] + "," + tokens[1], System.nanoTime());
+                if (Boolean.parseBoolean(tokens[0])) {
+                    ClientChangeEvent clientChangeEvent = new ClientChangeEvent(tokens[1], tokens[2], "type");
+                    replaySubject.onNext(clientChangeEvent);
+                }
             }
         };
         channel.basicConsume(queueName, true, consumer);
@@ -63,9 +72,7 @@ public class FlinkRMQMessageReceiver {
     public void closeChannel() {
         try {
             channel.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
     }

@@ -1,12 +1,10 @@
-package com.baqend.core.subscription;
-
-import com.baqend.core.subscription.queries.Query;
+package com.baqend.core.subscription.query;
 
 import java.util.ArrayList;
 
 public class QuerySet {
 
-    private ArrayList<Query> queries = new ArrayList<>();
+    private final ArrayList<Query> queries = new ArrayList<>();
 
     public QuerySet() {
 

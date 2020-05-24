@@ -3,9 +3,9 @@ package com.baqend.clients.baqend.helper;
 import java.util.Date;
 
 public class BaqendInitialQueryResult {
-    private String id;
-    private Date date;
-    private String type;
+    private final String id;
+    private final Date date;
+    private final String type;
 
     public BaqendInitialQueryResult(String id, Date date, String type) {
         this.id = id;

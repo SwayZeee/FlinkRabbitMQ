@@ -1,8 +1,11 @@
 package com.baqend.clients.flink;
 
 import com.baqend.clients.Client;
+import com.baqend.clients.ClientChangeEvent;
 import com.baqend.clients.flink.helper.FlinkRMQMessageReceiver;
 import com.baqend.clients.flink.helper.FlinkRMQMessageSender;
+import com.baqend.core.subscription.query.Query;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,14 +16,16 @@ public class FlinkClient implements Client {
 
     private final FlinkRMQMessageSender flinkRmqMessageSender = new FlinkRMQMessageSender();
     private FlinkRMQMessageReceiver flinkRMQMessageReceiver;
+    private final ReplaySubject<ClientChangeEvent> replaySubject;
 
-    public FlinkClient() throws IOException, TimeoutException {
+    public FlinkClient(ReplaySubject<ClientChangeEvent> replaySubject) throws IOException, TimeoutException {
+        this.replaySubject = replaySubject;
     }
 
     @Override
-    public void subscribeQuery(UUID queryID, String query) {
+    public void subscribeQuery(UUID queryID, Query query) {
         try {
-            flinkRMQMessageReceiver = new FlinkRMQMessageReceiver();
+            flinkRMQMessageReceiver = new FlinkRMQMessageReceiver(replaySubject);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -51,6 +56,7 @@ public class FlinkClient implements Client {
 
     @Override
     public void close() {
+        replaySubject.onComplete();
         flinkRmqMessageSender.close();
     }
 

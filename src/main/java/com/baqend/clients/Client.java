@@ -1,5 +1,7 @@
 package com.baqend.clients;
 
+import com.baqend.core.subscription.query.Query;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -10,7 +12,7 @@ public interface Client {
      * @param queryID
      * @param query
      */
-    void subscribeQuery(UUID queryID, String query);
+    void subscribeQuery(UUID queryID, Query query);
 
     /**
      *

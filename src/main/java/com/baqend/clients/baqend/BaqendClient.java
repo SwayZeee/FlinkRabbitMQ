@@ -1,13 +1,16 @@
 package com.baqend.clients.baqend;
 
 import com.baqend.clients.Client;
+import com.baqend.clients.ClientChangeEvent;
 import com.baqend.clients.baqend.helper.BaqendQueryBuilder;
 import com.baqend.clients.baqend.helper.BaqendRequestBuilder;
 import com.baqend.clients.baqend.helper.BaqendWebSocketClient;
-import com.baqend.utils.httpclients.AHCAsyncHttpClient;
+import com.baqend.core.subscription.query.Query;
+import com.baqend.utils.AHCAsyncHttpClient;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 import org.bson.Document;
 
 import java.net.URI;
@@ -24,18 +27,20 @@ public class BaqendClient implements Client {
     private final BaqendRequestBuilder baqendRequestBuilder = new BaqendRequestBuilder();
 
     private BaqendWebSocketClient baqendWebSocketClient;
+    private final ReplaySubject<ClientChangeEvent> replaySubject;
 
-    public BaqendClient() {
+    public BaqendClient(ReplaySubject<ClientChangeEvent> replaySubject) {
+        this.replaySubject = replaySubject;
         try {
-            baqendWebSocketClient = new BaqendWebSocketClient(new URI(BAQEND_WEBSOCKET_URI));
+            baqendWebSocketClient = new BaqendWebSocketClient(new URI(BAQEND_WEBSOCKET_URI), replaySubject);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void subscribeQuery(UUID queryID, String query) {
-        String queryString = baqendQueryBuilder.composeSubscribeQueryString(queryID.toString(), query);
+    public void subscribeQuery(UUID queryID, Query query) {
+        String queryString = baqendQueryBuilder.composeSubscribeQueryString(queryID.toString(), query.getBaqendQuery());
         baqendWebSocketClient.sendMessage(queryString);
     }
 
@@ -74,6 +79,7 @@ public class BaqendClient implements Client {
 
     @Override
     public void close() {
+        replaySubject.onComplete();
         baqendWebSocketClient.close();
         AHCAsyncHttpClient.getInstance().stop();
     }

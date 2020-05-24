@@ -1,4 +1,4 @@
-package com.baqend.core.load.data;
+package com.baqend.workload;
 
 import java.util.HashMap;
 import java.util.UUID;

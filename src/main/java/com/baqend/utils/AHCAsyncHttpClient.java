@@ -1,4 +1,4 @@
-package com.baqend.utils.httpclients;
+package com.baqend.utils;
 
 import org.asynchttpclient.AsyncHttpClient;
 

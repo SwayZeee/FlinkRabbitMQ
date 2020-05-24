@@ -9,6 +9,6 @@
 /log/
 
 # Project specific
+/src/main/java/com/baqend/generated/querysets/
 /src/main/java/com/baqend/generated/results/
 /src/main/java/com/baqend/generated/workloads/
-/src/main/java/com/baqend/generated/load/

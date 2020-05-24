@@ -3,9 +3,8 @@ package com.baqend.core.measurement;
 import com.baqend.config.Config;
 
 import java.util.HashMap;
-import java.util.UUID;
 
-public class Result {
+public class MeasurementResult {
     private Config config;
     private int ticks;
     private int tocks;
@@ -19,18 +18,18 @@ public class Result {
     private long ninetyNinthPercentile;
     private HashMap<String, Long> measurements;
 
-    public Result(Config config,
-                  int ticks,
-                  int tocks,
-                  double quantitativeCorrectness,
-                  long avg,
-                  long median,
-                  long minimum,
-                  long maximum,
-                  long ninetiethPercentile,
-                  long ninetyFifthPercentile,
-                  long ninetyNinthPercentile,
-                  HashMap<String, Long> measurements
+    public MeasurementResult(Config config,
+                             int ticks,
+                             int tocks,
+                             double quantitativeCorrectness,
+                             long avg,
+                             long median,
+                             long minimum,
+                             long maximum,
+                             long ninetiethPercentile,
+                             long ninetyFifthPercentile,
+                             long ninetyNinthPercentile,
+                             HashMap<String, Long> measurements
     ) {
         this.config = config;
         this.ticks = ticks;

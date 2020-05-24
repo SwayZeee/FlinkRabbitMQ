@@ -1,4 +1,4 @@
-package com.baqend.core.load.workload;
+package com.baqend.workload;
 
 public enum WorkloadEventType {
     INSERT, UPDATE, DELETE

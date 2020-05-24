@@ -1,6 +1,4 @@
-package com.baqend.core.load.workload;
-
-import com.baqend.core.load.data.SingleDataSet;
+package com.baqend.workload;
 
 import java.util.UUID;
 
@@ -37,23 +35,12 @@ public class WorkloadEvent {
         return type;
     }
 
-    public void setType(WorkloadEventType type) {
-        this.type = type;
-    }
-
     public boolean isRelevant() {
         return relevant;
-    }
-
-    public void setRelevant(boolean relevant) {
-        this.relevant = relevant;
     }
 
     public SingleDataSet getSingleDataSet() {
         return singleDataSet;
     }
 
-    public void setSingleDataSet(SingleDataSet singleDataSet) {
-        this.singleDataSet = singleDataSet;
-    }
 }
