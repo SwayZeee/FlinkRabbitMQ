@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 
 public class JsonExporter {
     private final Gson gson;
@@ -18,15 +19,20 @@ public class JsonExporter {
         gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    public void exportLatenciesToJsonFile(MeasurementResult measurementResult, String directoryName) {
+    public void exportLatenciesToJsonFile(MeasurementResult measurementResult, ArrayList<Long> latencies, String directoryName) {
         try {
             long timeStamp = System.currentTimeMillis();
             new File("src\\main\\java\\com\\baqend\\generated\\results\\" + directoryName).mkdirs();
-            Writer writer = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + directoryName + "\\" + timeStamp + ".json");
-            gson.toJson(measurementResult, writer);
-            writer.flush();
-            writer.close();
-            System.out.println("[JsonExporter] - Results exported (" + timeStamp + ".json)");
+            Writer writer1 = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + directoryName + "\\" + timeStamp + "_result.json");
+            gson.toJson(measurementResult, writer1);
+            writer1.flush();
+            writer1.close();
+            Writer writer2 = new FileWriter("src\\main\\java\\com\\baqend\\generated\\results\\" + directoryName + "\\" + timeStamp + "_latencies.json");
+            gson.toJson(latencies, writer2);
+            writer2.flush();
+            writer2.close();
+            System.out.println("[JsonExporter] - Results exported (" + timeStamp + "_result.json)");
+            System.out.println("[JsonExporter] - Latencies exported (" + timeStamp + "_latencies.json)");
         } catch (IOException e) {
             e.printStackTrace();
         }
