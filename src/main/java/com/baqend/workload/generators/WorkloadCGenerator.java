@@ -1,6 +1,8 @@
 package com.baqend.workload.generators;
 
 import com.baqend.config.Config;
+import com.baqend.core.subscription.query.Query;
+import com.baqend.core.subscription.query.QuerySet;
 import com.baqend.workload.LoadData;
 import com.baqend.workload.SingleDataSet;
 import com.baqend.workload.Workload;
@@ -23,11 +25,23 @@ public class WorkloadCGenerator {
 
     public static void main(String[] args) throws FileNotFoundException {
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
-
-        generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
+        String workloadName = "workload_c";
+        QuerySet querySet = generateQuerySet();
+        Workload workload = generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
+        jsonExporter.exportQuerySetToJsonFile(querySet, workloadName);
+        jsonExporter.exportWorkloadToJsonFile(workload, workloadName, config.throughput);
     }
 
-    public static void generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
+    public static QuerySet generateQuerySet() {
+        QuerySet querySet = new QuerySet();
+        for (int i = 1; i <= 10; i++) {
+            Query numberQuery = new Query("{\\\"number\\\": " + i + "}", "");
+            querySet.addQuery(numberQuery);
+        }
+        return querySet;
+    }
+
+    public static Workload generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
         Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\initialLoad.json"), Workload.class);
         LoadData relevantTupels = new LoadData();
         LoadData irrelevantTupels = new LoadData();
@@ -35,7 +49,7 @@ public class WorkloadCGenerator {
 
         for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
             // TODO: perform check for relevant data tupels in initial load
-            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 100) {
+            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 10) {
                 relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
                 irrelevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
@@ -46,6 +60,7 @@ public class WorkloadCGenerator {
             int randomNumber = randomDataGenerator.generateRandomInteger(1, 100);
             UUID transactionID = UUID.randomUUID();
             // measurement relevant events
+            // TODO: create for a lower change event measurement?
             if (i % (throughput / 100) == 0) {
                 // updates only, no relevant inserts or deletes
                 int randomIndex = randomDataGenerator.generateRandomInteger(0, relevantTupels.getLoad().size() - 1);
@@ -75,7 +90,6 @@ public class WorkloadCGenerator {
                 }
             }
         }
-        //TODO: compose workload name of parameters for automatic loading of LoadGenerator?
-        jsonExporter.exportWorkloadToJsonFile(workload, "workload_c", throughput);
+        return workload;
     }
 }
