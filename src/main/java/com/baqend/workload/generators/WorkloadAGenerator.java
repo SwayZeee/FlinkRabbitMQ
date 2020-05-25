@@ -27,10 +27,17 @@ public class WorkloadAGenerator {
     public static void main(String[] args) throws FileNotFoundException {
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
         String workloadName = "workload_a";
-        Workload workload = generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
         QuerySet querySet = generateQuerySet();
-        jsonExporter.exportWorkloadToJsonFile(workload, workloadName, config.throughput);
+        Workload workload = generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
         jsonExporter.exportQuerySetToJsonFile(querySet, workloadName);
+        jsonExporter.exportWorkloadToJsonFile(workload, workloadName, config.throughput);
+    }
+
+    public static QuerySet generateQuerySet() {
+        QuerySet querySet = new QuerySet();
+        Query fieldOneQuery = new Query("{\\\"fieldOne\\\": 1}", "");
+        querySet.addQuery(fieldOneQuery);
+        return querySet;
     }
 
     public static Workload generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
@@ -40,7 +47,7 @@ public class WorkloadAGenerator {
         Workload workload = new Workload();
 
         for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
-            // TODO: perform check for relevant data tupels in initial load
+            // perform check for relevant data tupels in initial load here
             if (workloadEvent.getSingleDataSet().getData().get("fieldOne").equals("1")) {
                 relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
@@ -179,12 +186,5 @@ public class WorkloadAGenerator {
             }
         }
         return workload;
-    }
-
-    public static QuerySet generateQuerySet() {
-        QuerySet querySet = new QuerySet();
-        Query fieldOneQuery = new Query("{\\\"fieldOne\\\": 1}", "");
-        querySet.addQuery(fieldOneQuery);
-        return querySet;
     }
 }

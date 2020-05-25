@@ -1,6 +1,8 @@
 package com.baqend.workload.generators;
 
 import com.baqend.config.Config;
+import com.baqend.core.subscription.query.Query;
+import com.baqend.core.subscription.query.QuerySet;
 import com.baqend.workload.LoadData;
 import com.baqend.workload.SingleDataSet;
 import com.baqend.workload.Workload;
@@ -12,11 +14,13 @@ import com.google.gson.Gson;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 /**
  * Generates a workload that does not contain events that update already relevant data
+ * Applicable for Baqend and Flink benchmarking
  */
 public class WorkloadBGenerator {
 
@@ -26,11 +30,21 @@ public class WorkloadBGenerator {
 
     public static void main(String[] args) throws FileNotFoundException {
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
-
-        generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
+        String workloadName = "workload_b";
+        QuerySet querySet = generateQuerySet();
+        Workload workload = generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
+        jsonExporter.exportQuerySetToJsonFile(querySet, workloadName);
+        jsonExporter.exportWorkloadToJsonFile(workload, workloadName, config.throughput);
     }
 
-    public static void generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
+    public static QuerySet generateQuerySet() {
+        QuerySet querySet = new QuerySet();
+        Query fieldOneQuery = new Query("{\\\"fieldOne\\\": 1}", "");
+        querySet.addQuery(fieldOneQuery);
+        return querySet;
+    }
+
+    public static Workload generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
         Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\initialLoad.json"), Workload.class);
         LoadData relevantTupels = new LoadData();
         LoadData irrelevantTupels = new LoadData();
@@ -45,9 +59,15 @@ public class WorkloadBGenerator {
             }
         }
 
+        ArrayList<UUID> forbiddenIDs = new ArrayList<UUID>();
+
         for (int i = 1; i <= (duration * throughput); i++) {
             int randomNumber = randomDataGenerator.generateRandomInteger(1, 100);
             UUID transactionID = UUID.randomUUID();
+
+            if (forbiddenIDs.size() == throughput) {
+                forbiddenIDs.remove(0);
+            }
             // measurement relevant events
             if (i % (throughput / 100) == 0) {
                 // INSERT
@@ -69,6 +89,8 @@ public class WorkloadBGenerator {
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, true, newSingleDataSet);
                     initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
                     workload.addWorkloadEvent(newWorkloadEvent);
+
+                    forbiddenIDs.add(newSingleDataSet.getUuid());
                     // UPDATE
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     boolean isDone = false;
@@ -96,6 +118,8 @@ public class WorkloadBGenerator {
                             WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
                             workload.addWorkloadEvent(newWorkloadEvent);
                             isDone = true;
+
+                            forbiddenIDs.add(newSingleDataSet.getUuid());
                         }
                     }
                 }
@@ -119,6 +143,8 @@ public class WorkloadBGenerator {
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, false, newSingleDataSet);
                     initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
                     workload.addWorkloadEvent(newWorkloadEvent);
+
+                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
                     SingleDataSet singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
@@ -127,10 +153,11 @@ public class WorkloadBGenerator {
 
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, false, newSingleDataSet);
                     workload.addWorkloadEvent(newWorkloadEvent);
+
+                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 }
             }
         }
-        //TODO: compose workload name of parameters for automatic loading of LoadGenerator?
-        jsonExporter.exportWorkloadToJsonFile(workload, "workload_b", throughput);
+        return workload;
     }
 }
