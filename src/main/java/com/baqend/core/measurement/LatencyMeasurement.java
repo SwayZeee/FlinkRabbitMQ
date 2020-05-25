@@ -159,9 +159,15 @@ public class LatencyMeasurement implements Observer<ClientChangeEvent> {
                 ninetyNinthPercentile,
                 calculateAllLatencies()
         );
+
+        ArrayList<Long> latenciesOnly = new ArrayList<>();
+        latencies.forEach((k, v) -> {
+            latenciesOnly.add(v);
+        });
+
         JsonExporter jsonExporter = new JsonExporter();
         try {
-            jsonExporter.exportLatenciesToJsonFile(measurementResult, config.workload + "_" + config.throughput);
+            jsonExporter.exportLatenciesToJsonFile(measurementResult, latenciesOnly, config.workload + "_" + config.throughput);
         } catch (Exception e) {
             e.printStackTrace();
         }
