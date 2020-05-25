@@ -31,7 +31,7 @@ public class LoadGenerator {
         Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
         double startTime = System.currentTimeMillis();
         double x = 1;
-        RateLimiter rateLimiter = RateLimiter.create(500);
+        RateLimiter rateLimiter = RateLimiter.create(1000);
         while (x <= initialWorkloadData.getWorkload().size()) {
             System.out.print("\r[LoadGenerator] - Load in progess " + (int) (x / (initialWorkloadData.getWorkload().size()) * 100) + " %");
             rateLimiter.acquire();
