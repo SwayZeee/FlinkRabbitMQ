@@ -34,7 +34,7 @@ public class WorkloadCGenerator {
 
     public static QuerySet generateQuerySet() {
         QuerySet querySet = new QuerySet();
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 100; i++) {
             Query numberQuery = new Query("{\\\"number\\\": " + i + "}", "");
             querySet.addQuery(numberQuery);
         }
@@ -49,7 +49,7 @@ public class WorkloadCGenerator {
 
         for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
             // TODO: perform check for relevant data tupels in initial load
-            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 10) {
+            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 100) {
                 relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
                 irrelevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
