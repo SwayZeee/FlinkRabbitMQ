@@ -24,16 +24,20 @@ public class FlinkClient implements Client {
 
     @Override
     public void subscribeQuery(UUID queryID, Query query) {
-        try {
-            flinkRMQMessageReceiver = new FlinkRMQMessageReceiver(replaySubject);
-        } catch (IOException | TimeoutException e) {
-            e.printStackTrace();
+        if (flinkRMQMessageReceiver == null) {
+            try {
+                flinkRMQMessageReceiver = new FlinkRMQMessageReceiver(replaySubject);
+            } catch (IOException | TimeoutException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void unsubscribeQuery(UUID queryID) {
-        flinkRMQMessageReceiver.close();
+        if (flinkRMQMessageReceiver.isChannelOpen() && flinkRMQMessageReceiver.isConnectionOpen() && flinkRMQMessageReceiver != null) {
+            flinkRMQMessageReceiver.close();
+        }
     }
 
     @Override

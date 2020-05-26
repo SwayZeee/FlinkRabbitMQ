@@ -69,6 +69,14 @@ public class FlinkRMQMessageReceiver {
         channel.basicConsume(queueName, true, consumer);
     }
 
+    public boolean isChannelOpen() {
+        return channel.isOpen();
+    }
+
+    public boolean isConnectionOpen() {
+        return connection.isOpen();
+    }
+
     public void closeChannel() {
         try {
             channel.close();
