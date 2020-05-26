@@ -27,7 +27,7 @@ public class LoadGenerator {
     }
 
     public void load() throws FileNotFoundException {
-        final int INSERT_RATE = 1000;
+        final int INSERT_RATE = 2500;
         System.out.println("[LoadGenerator] - Performing Load (" + config.initialLoadFile + ".json @ " + INSERT_RATE + " ops/s)");
         Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
         double startTime = System.currentTimeMillis();
