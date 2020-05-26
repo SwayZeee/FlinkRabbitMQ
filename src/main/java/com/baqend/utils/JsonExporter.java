@@ -59,7 +59,7 @@ public class JsonExporter {
             gson.toJson(workload, writer);
             writer.flush();
             writer.close();
-            System.out.println("[JsonExporter] - Workload exported (" + fileName + ".json)");
+            System.out.println("[JsonExporter] - Workload exported (" + fileName + "_" + throughput + ".json)");
         } catch (IOException e) {
             e.printStackTrace();
         }
