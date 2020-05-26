@@ -18,11 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-/**
- * Generates a workload that does not contain events that update already relevant data
- * Applicable for Baqend and Flink benchmarking
- */
-public class WorkloadBGenerator {
+public class WorkloadDGenerator {
 
     private static final Gson gson = new Gson();
     private static final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
@@ -30,7 +26,7 @@ public class WorkloadBGenerator {
 
     public static void main(String[] args) throws FileNotFoundException {
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
-        String workloadName = "workload_b";
+        String workloadName = "workload_d";
         QuerySet querySet = generateQuerySet();
         Workload workload = generateWorkload(config.duration, config.throughput, config.insertProportion, config.updateProportion);
         jsonExporter.exportQuerySetToJsonFile(querySet, workloadName);
@@ -51,7 +47,7 @@ public class WorkloadBGenerator {
         Workload workload = new Workload();
 
         for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
-            // TODO: perform check for relevant data tupels in initial load
+            // perform check for relevant data tupels in initial load here
             if (workloadEvent.getSingleDataSet().getData().get("fieldOne").equals("1")) {
                 relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
@@ -93,34 +89,61 @@ public class WorkloadBGenerator {
                     forbiddenIDs.add(newSingleDataSet.getUuid());
                     // UPDATE
                 } else if (randomNumber <= insertProportion + updateProportion) {
-                    boolean isDone = false;
-                    while (!isDone) {
+                    SingleDataSet singleDataSet;
+                    do {
                         int randomIndex = randomDataGenerator.generateRandomInteger(0, initialWorkloadData.getWorkload().size() - 1);
                         WorkloadEvent workloadEvent = initialWorkloadData.getWorkload().get(randomIndex);
-                        SingleDataSet singleDataSet = workloadEvent.getSingleDataSet();
-                        if (!relevantTupels.getLoad().contains(singleDataSet)) {
-                            // update notification
-                            HashMap<String, String> data = new HashMap<String, String>();
+                        singleDataSet = workloadEvent.getSingleDataSet();
+                    }
+                    while (forbiddenIDs.contains(singleDataSet.getUuid()));
+                    if (relevantTupels.getLoad().contains(singleDataSet)) {
+                        // remove notification
+                        HashMap<String, String> data = new HashMap<String, String>();
+                        boolean coinflip = randomDataGenerator.generateRandomInteger(1, 2) == 1;
+                        if (coinflip) {
+                            data.put("fieldOne", Integer.toString(randomDataGenerator.generateRandomInteger(2, 1000)));
+                        } else {
                             data.put("fieldOne", Integer.toString(randomDataGenerator.generateRandomInteger(1, 1)));
-                            data.put("fieldTwo", Double.toString(randomDataGenerator.generateRandomDouble(1, 1000)));
-                            data.put("fieldThree", randomDataGenerator.generateRandomString(6, true, false));
-                            data.put("fieldFour", Integer.toString(randomDataGenerator.generateRandomInteger(1001, 10000)));
-                            data.put("fieldFive", Double.toString(randomDataGenerator.generateRandomDouble(1001, 10000)));
-                            data.put("fieldSix", randomDataGenerator.generateRandomString(12, true, false));
-                            data.put("fieldSeven", Integer.toString(randomDataGenerator.generateRandomInteger(10001, 100000)));
-                            data.put("fieldEight", Double.toString(randomDataGenerator.generateRandomDouble(10001, 100000)));
-                            data.put("fieldNine", randomDataGenerator.generateRandomString(18, true, false));
-                            data.put("number", singleDataSet.getData().get("number"));
-                            SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
-
-                            relevantTupels.addSingleDataSet(newSingleDataSet);
-                            irrelevantTupels.getLoad().remove(newSingleDataSet);
-                            WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
-                            workload.addWorkloadEvent(newWorkloadEvent);
-                            isDone = true;
-
-                            forbiddenIDs.add(newSingleDataSet.getUuid());
                         }
+                        data.put("fieldTwo", Double.toString(randomDataGenerator.generateRandomDouble(1, 1000)));
+                        data.put("fieldThree", randomDataGenerator.generateRandomString(6, true, false));
+                        data.put("fieldFour", Integer.toString(randomDataGenerator.generateRandomInteger(1001, 10000)));
+                        data.put("fieldFive", Double.toString(randomDataGenerator.generateRandomDouble(1001, 10000)));
+                        data.put("fieldSix", randomDataGenerator.generateRandomString(12, true, false));
+                        data.put("fieldSeven", Integer.toString(randomDataGenerator.generateRandomInteger(10001, 100000)));
+                        data.put("fieldEight", Double.toString(randomDataGenerator.generateRandomDouble(10001, 100000)));
+                        data.put("fieldNine", randomDataGenerator.generateRandomString(18, true, false));
+                        data.put("number", singleDataSet.getData().get("number"));
+                        SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
+                        if (coinflip) {
+                            relevantTupels.getLoad().remove(newSingleDataSet);
+                            irrelevantTupels.getLoad().add(newSingleDataSet);
+                        }
+                        WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
+                        workload.addWorkloadEvent(newWorkloadEvent);
+
+                        forbiddenIDs.add(newSingleDataSet.getUuid());
+                    } else {
+                        // update notification
+                        HashMap<String, String> data = new HashMap<String, String>();
+                        data.put("fieldOne", Integer.toString(randomDataGenerator.generateRandomInteger(1, 1)));
+                        data.put("fieldTwo", Double.toString(randomDataGenerator.generateRandomDouble(1, 1000)));
+                        data.put("fieldThree", randomDataGenerator.generateRandomString(6, true, false));
+                        data.put("fieldFour", Integer.toString(randomDataGenerator.generateRandomInteger(1001, 10000)));
+                        data.put("fieldFive", Double.toString(randomDataGenerator.generateRandomDouble(1001, 10000)));
+                        data.put("fieldSix", randomDataGenerator.generateRandomString(12, true, false));
+                        data.put("fieldSeven", Integer.toString(randomDataGenerator.generateRandomInteger(10001, 100000)));
+                        data.put("fieldEight", Double.toString(randomDataGenerator.generateRandomDouble(10001, 100000)));
+                        data.put("fieldNine", randomDataGenerator.generateRandomString(18, true, false));
+                        data.put("number", singleDataSet.getData().get("number"));
+                        SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
+
+                        relevantTupels.addSingleDataSet(newSingleDataSet);
+                        irrelevantTupels.getLoad().remove(newSingleDataSet);
+                        WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
+                        workload.addWorkloadEvent(newWorkloadEvent);
+
+                        forbiddenIDs.add(newSingleDataSet.getUuid());
                     }
                 }
             } else {
@@ -146,8 +169,12 @@ public class WorkloadBGenerator {
 
                     forbiddenIDs.add(newSingleDataSet.getUuid());
                 } else if (randomNumber <= insertProportion + updateProportion) {
-                    int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
-                    SingleDataSet singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
+                    SingleDataSet singleDataSet;
+                    do {
+                        int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
+                        singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
+                    }
+                    while (forbiddenIDs.contains(singleDataSet.getUuid()));
                     data.put("number", singleDataSet.getData().get("number"));
                     SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
 
