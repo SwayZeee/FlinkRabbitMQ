@@ -5,6 +5,7 @@ import com.baqend.config.Config;
 import com.baqend.core.measurement.LatencyMeasurement;
 import com.baqend.core.subscription.query.Query;
 import com.baqend.core.subscription.query.QuerySet;
+import com.google.common.util.concurrent.RateLimiter;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -24,12 +25,17 @@ public class SubscriptionOrchestrator {
     }
 
     public void doQuerySubscriptions(QuerySet querySet) {
-        System.out.println("[SubscriptionOrchestrator] - Performing Query Subscription");
-        for (Query query: querySet.getQueries()) {
+        System.out.println("[SubscriptionOrchestrator] - Performing Query Subscription (queries: " + querySet.getQueries().size() + " @ 1 ops/s)");
+        double queryCounter = 1;
+        RateLimiter rateLimiter = RateLimiter.create(1);
+        for (Query query : querySet.getQueries()) {
+            System.out.print("\r[SubscriptionOrchestrator] - Query Subscription in progess " + (int) (queryCounter / querySet.getQueries().size() * 100) + " %");
+            rateLimiter.acquire();
             UUID queryID = UUID.randomUUID();
             subscribeQuery(queryID, query);
+            queryCounter++;
         }
-        System.out.println("[SubscriptionOrchestrator] - Query Subscription done");
+        System.out.println("\r[SubscriptionOrchestrator] - Query Subscription done");
         try {
             Thread.sleep(config.waitingTime);
         } catch (
