@@ -13,4 +13,5 @@ public class Config {
     public int updateProportion;
     public String workload;
     public String initialLoadFile;
+    public int initialLoadRate;
 }
