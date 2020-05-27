@@ -20,7 +20,7 @@ import java.util.UUID;
 
 /**
  * Workload
- * Generates a workload that does not contain events that update already relevant data
+ * Generates a workload that does not contain events that update already relevant data to be removed
  * Applicable for Baqend and Flink benchmarking
  * Clause: WHERE fieldOne = 500 AND fieldFour = 5000
  */
@@ -41,7 +41,7 @@ public class WorkloadAGenerator {
 
     public static QuerySet generateQuerySet() {
         QuerySet querySet = new QuerySet();
-        Query fieldOneQuery = new Query("{ $and: [ { \\\"fieldOne\\\": 500 }, { \\\"fieldFour\\\": 5000}] }", "");
+        Query fieldOneQuery = new Query("{ $and: [ { \\\"fieldOne\\\": 500 }, { \\\"fieldFour\\\": 5000} ] }", "");
         querySet.addQuery(fieldOneQuery);
         return querySet;
     }

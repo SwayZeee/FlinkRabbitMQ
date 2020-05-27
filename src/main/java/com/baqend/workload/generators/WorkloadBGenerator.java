@@ -20,7 +20,7 @@ import java.util.UUID;
 
 /**
  * Workload
- * Generates a workload that does not contain events that update already relevant data
+ * Generates a workload that does not contain events that update already relevant data to be removed
  * Applicable for Baqend and Flink benchmarking
  * Clause: WHERE fieldThree LIKE "%RTDBSP%"
  */

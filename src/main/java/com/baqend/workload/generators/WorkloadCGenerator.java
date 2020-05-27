@@ -34,10 +34,16 @@ public class WorkloadCGenerator {
 
     public static QuerySet generateQuerySet() {
         QuerySet querySet = new QuerySet();
-        for (int i = 1; i <= 100; i++) {
-            Query numberQuery = new Query("{\\\"number\\\": " + i + "}", "");
-            querySet.addQuery(numberQuery);
-        }
+        Query numberQuery1 = new Query("{ $and: [ { \\\"number\\\": { $gt: 0 } }, { \\\"number\\\": { $lt: 501 } } ] }", "");
+        querySet.addQuery(numberQuery1);
+        Query numberQuery2 = new Query("{ $and: [ { \\\"number\\\": { $gt: 500 } }, { \\\"number\\\": { $lt: 1001 } } ] }", "");
+        querySet.addQuery(numberQuery2);
+        Query numberQuery3 = new Query("{ $and: [ { \\\"number\\\": { $gt: 1000 } }, { \\\"number\\\": { $lt: 1501 } } ] }", "");
+        querySet.addQuery(numberQuery3);
+        Query numberQuery4 = new Query("{ $and: [ { \\\"number\\\": { $gt: 1500 } }, { \\\"number\\\": { $lt: 2001 } } ] }", "");
+        querySet.addQuery(numberQuery4);
+        Query numberQuery5 = new Query("{ $and: [ { \\\"number\\\": { $gt: 2000 } }, { \\\"number\\\": { $lt: 2501 } } ] }", "");
+        querySet.addQuery(numberQuery5);
         return querySet;
     }
 
@@ -49,7 +55,7 @@ public class WorkloadCGenerator {
 
         for (WorkloadEvent workloadEvent : initialWorkloadData.getWorkload()) {
             // TODO: perform check for relevant data tupels in initial load
-            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 100) {
+            if (Integer.parseInt(workloadEvent.getSingleDataSet().getData().get("number")) <= 2500) {
                 relevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
             } else {
                 irrelevantTupels.addSingleDataSet(workloadEvent.getSingleDataSet());
@@ -60,7 +66,6 @@ public class WorkloadCGenerator {
             int randomNumber = randomDataGenerator.generateRandomInteger(1, 100);
             UUID transactionID = UUID.randomUUID();
             // measurement relevant events
-            // TODO: create for a lower change event measurement?
             if (i % (throughput / 100) == 0) {
                 // updates only, no relevant inserts or deletes
                 int randomIndex = randomDataGenerator.generateRandomInteger(0, relevantTupels.getLoad().size() - 1);
