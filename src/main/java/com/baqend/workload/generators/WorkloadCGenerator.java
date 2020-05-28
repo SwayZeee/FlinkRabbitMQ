@@ -36,7 +36,7 @@ public class WorkloadCGenerator {
     public static QuerySet generateQuerySet() {
         QuerySet querySet = new QuerySet();
         int queryAmount = 10;
-        for (int i = 0; i <= queryAmount; i++) {
+        for (int i = 0; i < queryAmount; i++) {
             Query numberQuery = new Query("{ $and: [ { \\\"number\\\": { $gt: " + 500 * i + " } }, { \\\"number\\\": { $lt: " + (500 * (i + 1) + 1) + " } } ] }", "");
             querySet.addQuery(numberQuery);
         }
