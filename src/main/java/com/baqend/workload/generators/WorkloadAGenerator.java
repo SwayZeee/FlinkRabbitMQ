@@ -61,15 +61,9 @@ public class WorkloadAGenerator {
             }
         }
 
-        ArrayList<UUID> forbiddenIDs = new ArrayList<UUID>();
-
         for (int i = 1; i <= (duration * throughput); i++) {
             int randomNumber = randomDataGenerator.generateRandomInteger(1, 100);
             UUID transactionID = UUID.randomUUID();
-
-            if (forbiddenIDs.size() == throughput) {
-                forbiddenIDs.remove(0);
-            }
             // measurement relevant events
             if (i % (throughput / 100) == 0) {
                 // INSERT
@@ -91,16 +85,11 @@ public class WorkloadAGenerator {
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, true, newSingleDataSet);
                     initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
                     workload.addWorkloadEvent(newWorkloadEvent);
-
-                    forbiddenIDs.add(newSingleDataSet.getUuid());
                     // UPDATE
                 } else if (randomNumber <= insertProportion + updateProportion) {
-                    boolean isDone = false;
-                    while (!isDone) {
                         int randomIndex = randomDataGenerator.generateRandomInteger(0, initialWorkloadData.getWorkload().size() - 1);
                         WorkloadEvent workloadEvent = initialWorkloadData.getWorkload().get(randomIndex);
                         SingleDataSet singleDataSet = workloadEvent.getSingleDataSet();
-                        if (!relevantTupels.getLoad().contains(singleDataSet)) {
                             // update notification
                             HashMap<String, String> data = new HashMap<String, String>();
                             data.put("fieldOne", Integer.toString(randomDataGenerator.generateRandomInteger(500, 500)));
@@ -115,15 +104,13 @@ public class WorkloadAGenerator {
                             data.put("number", singleDataSet.getData().get("number"));
                             SingleDataSet newSingleDataSet = new SingleDataSet(singleDataSet.getUuid(), data);
 
-                            relevantTupels.addSingleDataSet(newSingleDataSet);
-                            irrelevantTupels.getLoad().remove(newSingleDataSet);
+                            if (!relevantTupels.getLoad().contains(singleDataSet)) {
+                                relevantTupels.addSingleDataSet(newSingleDataSet);
+                                irrelevantTupels.getLoad().remove(newSingleDataSet);
+                            }
+
                             WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
                             workload.addWorkloadEvent(newWorkloadEvent);
-                            isDone = true;
-
-                            forbiddenIDs.add(newSingleDataSet.getUuid());
-                        }
-                    }
                 }
             } else {
                 HashMap<String, String> data = new HashMap<String, String>();
@@ -145,8 +132,6 @@ public class WorkloadAGenerator {
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, false, newSingleDataSet);
                     initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
                     workload.addWorkloadEvent(newWorkloadEvent);
-
-                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
                     SingleDataSet singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
@@ -155,8 +140,6 @@ public class WorkloadAGenerator {
 
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, false, newSingleDataSet);
                     workload.addWorkloadEvent(newWorkloadEvent);
-
-                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 }
             }
         }

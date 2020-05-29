@@ -43,8 +43,6 @@ public class WorkloadCGenerator {
         return querySet;
     }
 
-    ArrayList<UUID> forbiddenIDs = new ArrayList<UUID>();
-
     public static Workload generateWorkload(int duration, int throughput, int insertProportion, int updateProportion) throws FileNotFoundException {
         Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\initialLoad.json"), Workload.class);
         LoadData relevantTupels = new LoadData();
@@ -61,15 +59,10 @@ public class WorkloadCGenerator {
             }
         }
 
-        ArrayList<UUID> forbiddenIDs = new ArrayList<UUID>();
-
         for (int i = 1; i <= (duration * throughput); i++) {
             int randomNumber = randomDataGenerator.generateRandomInteger(1, 100);
             UUID transactionID = UUID.randomUUID();
 
-            if (forbiddenIDs.size() == throughput) {
-                forbiddenIDs.remove(0);
-            }
             // measurement relevant events
             if (i % (throughput / 100) == 0) {
                 // updates only, no relevant inserts or deletes
@@ -80,8 +73,6 @@ public class WorkloadCGenerator {
 
                 WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, true, newSingleDataSet);
                 workload.addWorkloadEvent(newWorkloadEvent);
-
-                forbiddenIDs.add(newSingleDataSet.getUuid());
             } else {
                 if (randomNumber <= insertProportion) {
                     HashMap<String, String> data = randomDataGenerator.generateRandomDataset(initialWorkloadData.getWorkload().size() + 1);
@@ -91,8 +82,6 @@ public class WorkloadCGenerator {
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.INSERT, false, newSingleDataSet);
                     initialWorkloadData.addWorkloadEvent(newWorkloadEvent);
                     workload.addWorkloadEvent(newWorkloadEvent);
-
-                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 } else if (randomNumber <= insertProportion + updateProportion) {
                     int randomIndex = randomDataGenerator.generateRandomInteger(0, irrelevantTupels.getLoad().size() - 1);
                     SingleDataSet singleDataSet = irrelevantTupels.getLoad().get(randomIndex);
@@ -101,8 +90,6 @@ public class WorkloadCGenerator {
 
                     WorkloadEvent newWorkloadEvent = new WorkloadEvent(transactionID, WorkloadEventType.UPDATE, false, newSingleDataSet);
                     workload.addWorkloadEvent(newWorkloadEvent);
-
-                    forbiddenIDs.add(newSingleDataSet.getUuid());
                 }
             }
         }
