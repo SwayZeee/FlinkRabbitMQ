@@ -15,7 +15,6 @@ import java.util.UUID;
 
 public class LoadGenerator {
 
-    private final Gson gson = new Gson();
     private final Client client;
     private final Config config;
     private final LatencyMeasurement latencyMeasurement;
@@ -26,9 +25,8 @@ public class LoadGenerator {
         this.latencyMeasurement = latencyMeasurement;
     }
 
-    public void load() throws FileNotFoundException {
+    public void load(Workload initialWorkloadData) {
         System.out.println("[LoadGenerator] - Performing Load (" + config.initialLoadFile + ".json @ " + config.initialLoadRate + " ops/s)");
-        Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
         double startTime = System.currentTimeMillis();
         double x = 1;
         RateLimiter rateLimiter = RateLimiter.create(config.initialLoadRate);
@@ -55,11 +53,10 @@ public class LoadGenerator {
         System.out.println("[LoadGenerator] - WarmUp done");
     }
 
-    public void start() throws FileNotFoundException {
+    public void start(Workload workload) {
         double x = 1;
         int rounds = config.duration;
         int throughput = config.throughput;
-        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.workload + "\\" + config.workload + "_" + config.throughput + ".json"), Workload.class);
         System.out.println("[LoadGenerator] - Performing Benchmark (" + config.workload + "_" + config.throughput + ".json @ " + throughput + " ops/s)");
         double startTime = System.currentTimeMillis();
         RateLimiter rateLimiter = RateLimiter.create(config.throughput);

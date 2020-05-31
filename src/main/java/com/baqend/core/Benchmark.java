@@ -9,6 +9,7 @@ import com.baqend.core.load.LoadGenerator;
 import com.baqend.core.measurement.LatencyMeasurement;
 import com.baqend.core.subscription.SubscriptionOrchestrator;
 import com.baqend.core.subscription.query.QuerySet;
+import com.baqend.workload.Workload;
 import com.google.gson.Gson;
 import io.reactivex.rxjava3.subjects.ReplaySubject;
 
@@ -29,6 +30,9 @@ public class Benchmark {
 
         Gson gson = new Gson();
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
+        Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
+        Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.workload + "\\" + config.workload + "_" + config.throughput + ".json"), Workload.class);
+        QuerySet querySet = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\querysets\\" + config.workload + ".json"), QuerySet.class);
 
         ReplaySubject<ClientChangeEvent> replaySubject = ReplaySubject.create();
 
@@ -49,7 +53,7 @@ public class Benchmark {
         LoadGenerator loadGenerator = new LoadGenerator(client, config, latencyMeasurement);
 
         if (config.isPerformingLoad) {
-            loadGenerator.load();
+            loadGenerator.load(initialWorkloadData);
         }
         if (config.isPerformingWarmUp) {
             loadGenerator.warmUp();
@@ -57,11 +61,10 @@ public class Benchmark {
 
         replaySubject.subscribe(latencyMeasurement);
 
-        QuerySet querySet = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\querysets\\" + config.workload + ".json"), QuerySet.class);
         SubscriptionOrchestrator subscriptionOrchestrator = new SubscriptionOrchestrator(client, config, latencyMeasurement);
         subscriptionOrchestrator.doQuerySubscriptions(querySet);
 
-        loadGenerator.start();
+        loadGenerator.start(workload);
 
         subscriptionOrchestrator.undoQuerySubscriptions();
 
