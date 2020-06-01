@@ -30,7 +30,6 @@ public class Benchmark {
 
         Gson gson = new Gson();
         Config config = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\config\\config.json"), Config.class);
-        Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
         Workload workload = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.workload + "\\" + config.workload + "_" + config.throughput + ".json"), Workload.class);
         QuerySet querySet = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\querysets\\" + config.workload + ".json"), QuerySet.class);
 
@@ -53,6 +52,7 @@ public class Benchmark {
         LoadGenerator loadGenerator = new LoadGenerator(client, config, latencyMeasurement);
 
         if (config.isPerformingLoad) {
+            Workload initialWorkloadData = gson.fromJson(new FileReader("src\\main\\java\\com\\baqend\\generated\\workloads\\" + config.initialLoadFile + ".json"), Workload.class);
             loadGenerator.load(initialWorkloadData);
         }
         if (config.isPerformingWarmUp) {
